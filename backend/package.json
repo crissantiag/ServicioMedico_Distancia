@@ -1,0 +1,28 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "Backend de proyecto de Servicios Medicos a Distancia",
+  "homepage": "https://github.com/crissantiag/ServicioMedico_Distancia#readme",
+  "bugs": {
+    "url": "https://github.com/crissantiag/ServicioMedico_Distancia/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/crissantiag/ServicioMedico_Distancia.git"
+  },
+  "license": "ISC",
+  "author": "Cristina Fuentes Helen Martinez Omar Najarro Daniel Rivas",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "body-parser": "^2.3.0",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.10.3"
+  }
+}
