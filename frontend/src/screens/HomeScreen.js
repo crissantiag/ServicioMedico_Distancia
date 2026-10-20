@@ -57,7 +57,7 @@ const HomeScreen = () => {
             </TouchableOpacity>
 
             {/* Tarjeta Médicos */}
-            <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('')}>
+            <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('Doctor Filter')}>
                 <View style={styles.iconContainer}>
                     <MaterialCommunityIcons name="medical-bag" size={36} color="#3368A0" />
                 </View>

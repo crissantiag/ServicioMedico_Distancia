@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { UserProvider } from './frontend/src/context/UserContext';
 import LoginScreen from './frontend/src/screens/LoginScreen';
 import RegisterScreen from './frontend/src/screens/RegisterScreen'; 
+import DoctorFilterScreen from './frontend/src/screens/DoctorFilterScreen';
 import AppTabs from './AppNavigation'; 
 
 const Stack = createNativeStackNavigator();
@@ -15,6 +16,7 @@ const App = () => {
                     <Stack.Screen name='Login' component={LoginScreen}/>
                     <Stack.Screen name='Register' component={RegisterScreen}/>
                     <Stack.Screen name='Main' component={AppTabs}/>
+                    <Stack.Screen name='Doctor Filter' component={DoctorFilterScreen}/>
                 </Stack.Navigator>
             </NavigationContainer>
         </UserProvider>
