@@ -1,26 +1,30 @@
 import React, { useContext, useState } from 'react';
 import { View, Text, TextInput, StyleSheet, Image, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { UserContext } from '../context/UserContext';
-import { useNavigation } from '@react-navigation/native';
+import { router } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const LoginScreen = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [isFocused1, setIsFocused1] = useState(false);
     const [isFocused2, setIsFocused2] = useState(false);
     
-    const { setUser } = useContext(UserContext);
-    const navigation = useNavigation();
+    const { signIn } = useContext(UserContext);
 
-    const handleLogin = () => {
+    const [busy, setBusy] = useState(false);
+    const handleLogin = async () => {
+        if (busy) return;
         if (!username.trim() || !password.trim()) {
             Alert.alert("Campos incompletos", "Por favor, completa todos los campos.");
             return;
         }
 
-        setUser({ username });
-        navigation.navigate('Main'); 
+        setBusy(true);
+        try { await signIn(username, password); }
+        catch (error) { Alert.alert('No se pudo ingresar', error.message); }
+        finally { setBusy(false); } 
     };
 
     return (
@@ -45,7 +49,8 @@ const LoginScreen = () => {
                     style={styles.input}
                     onChangeText={setUsername}
                     value={username}
-                    placeholder="Nombre de usuario"
+                    placeholder="Correo electrónico"
+                    keyboardType="email-address"
                     placeholderTextColor="#888"
                     autoCapitalize="none"
                     onFocus={() => setIsFocused1(true)}
@@ -64,18 +69,31 @@ const LoginScreen = () => {
                     value={password}
                     placeholder="Contraseña"
                     placeholderTextColor="#888"
-                    secureTextEntry
+                    secureTextEntry={!showPassword}
+                    autoCorrect={false}
                     autoCapitalize="none"
                     onFocus={() => setIsFocused2(true)}
                     onBlur={() => setIsFocused2(false)}
                 />
+                <TouchableOpacity
+                    accessibilityRole="button"
+                    accessibilityLabel={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                    onPress={() => setShowPassword(value => !value)}
+                    style={{ minWidth: 48, minHeight: 44, alignItems: 'center', justifyContent: 'center' }}
+                >
+                    <MaterialCommunityIcons
+                        name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                        size={24}
+                        color="#3368A0"
+                    />
+                </TouchableOpacity>
             </View>
 
-            <TouchableOpacity style={styles.button} onPress={handleLogin} activeOpacity={0.8}>
-                <Text style={styles.buttonText}>Ingresar</Text>
+            <TouchableOpacity style={styles.button} disabled={busy} onPress={handleLogin} activeOpacity={0.8}>
+                <Text style={styles.buttonText}>{busy ? 'Ingresando…' : 'Ingresar'}</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.registerLink} onPress={() => navigation.navigate('Register')}> 
+            <TouchableOpacity style={styles.registerLink} onPress={() => router.push('/register')}> 
                 <Text style={styles.registerLinkText}>
                     ¿No tienes cuenta? <Text style={styles.registerLinkBold}>Regístrate aquí</Text>
                 </Text> 

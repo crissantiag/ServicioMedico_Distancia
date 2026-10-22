@@ -2,7 +2,7 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import HomeScreen from './frontend/src/screens/HomeScreen';
-import DoctorFilterScreen from './frontend/src/screens/DoctorFilterScreen';
+
 
 const Tab = createBottomTabNavigator(); 
 

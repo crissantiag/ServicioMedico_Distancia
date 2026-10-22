@@ -1,26 +1,2 @@
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { UserProvider } from './frontend/src/context/UserContext';
-import LoginScreen from './frontend/src/screens/LoginScreen';
-import RegisterScreen from './frontend/src/screens/RegisterScreen'; 
-import DoctorFilterScreen from './frontend/src/screens/DoctorFilterScreen';
-import AppTabs from './AppNavigation'; 
-
-const Stack = createNativeStackNavigator();
-
-const App = () => {
-    return (
-        <UserProvider>
-            <NavigationContainer>
-                <Stack.Navigator initialRouteName='Login' screenOptions={{ headerShown: false }}>
-                    <Stack.Screen name='Login' component={LoginScreen}/>
-                    <Stack.Screen name='Register' component={RegisterScreen}/>
-                    <Stack.Screen name='Main' component={AppTabs}/>
-                    <Stack.Screen name='Doctor Filter' component={DoctorFilterScreen}/>
-                </Stack.Navigator>
-            </NavigationContainer>
-        </UserProvider>
-    );
-};
-
-export default App;
+// La entrada de Expo está en index.js y las rutas en src/app.
+export { default } from './src/app/_layout';

@@ -1,28 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { router } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons'; 
 
+import { UserContext } from '../context/UserContext';
+
 const RegisterScreen = () => {
-    const navigation = useNavigation();
+    const { signUp } = useContext(UserContext);
+    const [busy, setBusy] = useState(false);
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
 
-    const handleRegister = () => {
-        if (!username || !email || !password) {
-            Alert.alert('Error', 'Por favor, llena todos los campos.');
+    const handleRegister = async () => {
+        if (busy) return;
+        if (!username.trim() || !email.trim() || password.length < 6) {
+            Alert.alert('Revisa tus datos', 'Completa nombre, correo y una contraseña de al menos 6 caracteres.');
             return;
         }
-        Alert.alert('Éxito', 'Cuenta creada correctamente', [
-            { text: 'Ir al Login', onPress: () => navigation.navigate('Login') }
-        ]);
+        setBusy(true);
+        try { await signUp(username, email, password); }
+        catch (error) { Alert.alert('Registro', error.message); }
+        finally { setBusy(false); }
     };
 
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Crear Cuenta</Text>
-            <Text style={styles.subtitle}>Regístrate en la clínica pediátrica</Text>
+            <Text style={styles.subtitle}>Crea tu cuenta de paciente</Text>
 
             <View style={styles.inputContainer}>
                 <MaterialCommunityIcons name="account" size={20} color="#66A3BF" style={styles.icon} />
@@ -54,17 +60,30 @@ const RegisterScreen = () => {
                     style={styles.input} 
                     placeholder="Contraseña" 
                     placeholderTextColor="#999"
-                    secureTextEntry
+                    secureTextEntry={!showPassword}
+                    autoCorrect={false}
                     value={password}
                     onChangeText={setPassword}
                 />
+                <TouchableOpacity
+                    accessibilityRole="button"
+                    accessibilityLabel={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                    onPress={() => setShowPassword(value => !value)}
+                    style={{ minWidth: 48, minHeight: 44, alignItems: 'center', justifyContent: 'center' }}
+                >
+                    <MaterialCommunityIcons
+                        name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                        size={24}
+                        color="#3368A0"
+                    />
+                </TouchableOpacity>
             </View>
 
-            <TouchableOpacity style={styles.button} onPress={handleRegister}>
-                <Text style={styles.buttonText}>Registrarse</Text>
+            <TouchableOpacity style={styles.button} disabled={busy} onPress={handleRegister}>
+                <Text style={styles.buttonText}>{busy ? 'Creando cuenta…' : 'Registrarse'}</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.loginLink} onPress={() => navigation.navigate('Login')}>
+            <TouchableOpacity style={styles.loginLink} onPress={() => router.replace('/')}>
                 <Text style={styles.loginLinkText}>
                     ¿Ya tienes una cuenta? <Text style={styles.loginLinkBold}>Inicia sesión</Text>
                 </Text>

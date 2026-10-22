@@ -1,19 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import {
+  Alert,
   View,
   Text,
   FlatList,
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
-  SafeAreaView,
   StatusBar,
   ScrollView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { router } from 'expo-router';
+import { api } from '../services/api';
 import { Picker } from '@react-native-picker/picker';
 import { Ionicons } from '@expo/vector-icons';
 
-export default function DoctorFilterScreen({ navigation }) {
+export default function DoctorFilterScreen() {
   // Estados para los filtros seleccionados (IDs)
   const [idEspecialidad, setIdEspecialidad] = useState('');
   const [idCentro, setIdCentro] = useState('');
@@ -28,65 +31,39 @@ export default function DoctorFilterScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
   const [loadingCatalogos, setLoadingCatalogos] = useState(true);
 
-  // 1. Cargar catálogos al iniciar
+  const [error, setError] = useState('');
+  const [page, setPage] = useState(1);
+  const [lastPage, setLastPage] = useState(1);
   const fetchCatalogos = async () => {
+    setLoadingCatalogos(true);
     try {
-      const headers = {
-        'Accept': 'application/json',
-        'X-Usuario-Id': '2',
-      };
-
-      const [resEsp, resCentros] = await Promise.all([
-        fetch('http://10.0.2.2:8000/api/especialidades', { headers }),
-        fetch('http://10.0.2.2:8000/api/centros-medicos', { headers })
+      const [especialidades, centros] = await Promise.all([
+        api.get('especialidades'), api.get('centros-medicos'),
       ]);
-
-      const dataEsp = await resEsp.json();
-      const dataCentros = await resCentros.json();
-
-      setListaEspecialidades(Array.isArray(dataEsp) ? dataEsp : (dataEsp.data || []));
-      setListaCentros(Array.isArray(dataCentros) ? dataCentros : (dataCentros.data || []));
-    } catch (error) {
-      console.error('Error al cargar catálogos:', error);
-    } finally {
-      setLoadingCatalogos(false);
-    }
+      setListaEspecialidades(especialidades.data);
+      setListaCentros(centros.data);
+    } catch (failure) { setError(failure.message); }
+    finally { setLoadingCatalogos(false); }
   };
-
-  // 2. Cargar médicos filtrados
-  const fetchMedicos = async () => {
+  const fetchMedicos = async (nextPage = 1) => {
     setLoading(true);
+    setError('');
     try {
-      const params = new URLSearchParams();
-      if (idEspecialidad) params.append('id_especialidad', idEspecialidad);
-      if (idCentro) params.append('id_centro', idCentro);
-      if (idioma) params.append('idioma', idioma);
-      params.append('per_page', '15');
-
-      const url = `http://10.0.2.2:8000/api/medicos?${params.toString()}`;
-
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-          'X-Usuario-Id': '2',
-        },
+      const result = await api.get('medicos', {
+        id_especialidad: idEspecialidad, id_centro: idCentro,
+        idioma, per_page: 15, page: nextPage,
       });
-
-      const jsonResponse = await response.json();
-      const listaMedicos = Array.isArray(jsonResponse) ? jsonResponse : (jsonResponse.data || []);
-      setMedicos(listaMedicos);
-
-    } catch (error) {
-      console.error('Error al filtrar médicos:', error);
-    } finally {
-      setLoading(false);
-    }
+      setMedicos(result.data);
+      setPage(nextPage);
+      setLastPage(result.meta?.last_page || 1);
+    } catch (failure) { setError(failure.message); setMedicos([]); }
+    finally { setLoading(false); }
   };
 
   useEffect(() => {
-    fetchCatalogos();
-    fetchMedicos();
+    // Carga inicial; los filtros se aplican solo al pulsar Buscar.
+    void Promise.resolve().then(() => { fetchCatalogos(); fetchMedicos(1); });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const renderDoctorCard = ({ item }) => (
@@ -98,7 +75,7 @@ export default function DoctorFilterScreen({ navigation }) {
       
       <View style={styles.infoRow}>
         <Ionicons name="business-outline" size={16} color="#3368A0" style={{ marginRight: 6 }} />
-        <Text style={styles.cardInfo}>Centro: {item.centro?.nombre_centro || 'Disponible en red'}</Text>
+        <Text style={styles.cardInfo}>Centro: {item.centros?.map(centro => centro.nombre_centro).join(', ') || 'Sin centro asignado'}</Text>
       </View>
 
       <View style={styles.infoRow}>
@@ -111,7 +88,7 @@ export default function DoctorFilterScreen({ navigation }) {
         <Text style={styles.cardInfo}>Disponibilidad: {item.disponibilidad || 'Consultar horario'}</Text>
       </View>
 
-      <TouchableOpacity style={styles.btnAgendar}>
+      <TouchableOpacity style={styles.btnAgendar} onPress={() => Alert.alert('En preparación', 'La agenda todavía no está conectada.')}>
         <Text style={styles.btnAgendarText}>Agendar Cita</Text>
       </TouchableOpacity>
     </View>
@@ -125,7 +102,7 @@ export default function DoctorFilterScreen({ navigation }) {
       <View style={styles.topAppBar}>
         <TouchableOpacity 
           style={styles.iconButton} 
-          onPress={() => navigation && navigation.goBack ? navigation.goBack() : null}
+          onPress={() => router.canGoBack() ? router.back() : router.replace('/home')}
         >
           <Ionicons name="arrow-back" size={24} color="#1E293B" />
         </TouchableOpacity>
@@ -194,12 +171,15 @@ export default function DoctorFilterScreen({ navigation }) {
               </Picker>
             </View>
 
-            <TouchableOpacity style={styles.btnFilter} onPress={fetchMedicos}>
+            <TouchableOpacity style={styles.btnFilter} disabled={loading} onPress={() => fetchMedicos(1)}>
               <Text style={styles.btnFilterText}>Buscar Médicos</Text>
             </TouchableOpacity>
           </View>
         )}
 
+        {error ? <View accessibilityRole="alert"><Text style={{ color: '#B42318' }}>{error}</Text>
+          <TouchableOpacity onPress={() => { fetchCatalogos(); fetchMedicos(1); }}><Text>Reintentar</Text></TouchableOpacity>
+        </View> : null}
         <Text style={styles.resultsTitle}>Resultados de la Búsqueda</Text>
         
         {loading ? (
@@ -211,10 +191,15 @@ export default function DoctorFilterScreen({ navigation }) {
             renderItem={renderDoctorCard}
             scrollEnabled={false}
             ListEmptyComponent={
-              <Text style={styles.emptyText}>No se encontraron médicos con esos criterios.</Text>
+              <Text style={styles.emptyText}>{error ? 'No se pudo cargar la búsqueda.' : 'No se encontraron médicos con esos criterios.'}</Text>
             }
           />
         )}
+        {!loading && lastPage > 1 ? <View>
+          <Text>Página {page} de {lastPage}</Text>
+          <TouchableOpacity disabled={page <= 1} onPress={() => fetchMedicos(page - 1)}><Text>Anterior</Text></TouchableOpacity>
+          <TouchableOpacity disabled={page >= lastPage} onPress={() => fetchMedicos(page + 1)}><Text>Siguiente</Text></TouchableOpacity>
+        </View> : null}
       </ScrollView>
     </SafeAreaView>
   );

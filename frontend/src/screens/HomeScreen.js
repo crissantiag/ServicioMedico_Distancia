@@ -1,12 +1,11 @@
 import { useContext } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { UserContext } from '../context/UserContext';
-import { useNavigation } from '@react-navigation/native';
+import { router } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const HomeScreen = () => {
-   const { user, setUser } = useContext(UserContext); 
-    const navigation = useNavigation();
+   const { user, signOut } = useContext(UserContext); 
 
     const handleLogout = () => {
         Alert.alert(
@@ -18,11 +17,7 @@ const HomeScreen = () => {
                     text: "Salir", 
                     style: "destructive",
                     onPress: () => {
-                        setUser(null); 
-                        navigation.reset({
-                            index: 0,
-                            routes: [{ name: 'Login' }], 
-                        });
+                        signOut();
                     }
                 }
             ]
@@ -33,10 +28,10 @@ const HomeScreen = () => {
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
             
             <Text style={styles.title}>
-                Bienvenido, {user?.username || 'Paciente'}
+                Bienvenido, {user?.nombre_completo || 'Paciente'}
             </Text>
 
-            <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('')}>
+            <TouchableOpacity style={styles.card} onPress={() => Alert.alert('En preparación', 'Este módulo todavía no está conectado.')}>
                 <View style={styles.iconContainer}>
                     <MaterialCommunityIcons name="calendar-clock" size={36} color="#3368A0" />
                 </View>
@@ -46,7 +41,7 @@ const HomeScreen = () => {
                 </View>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('')}>
+            <TouchableOpacity style={styles.card} onPress={() => Alert.alert('En preparación', 'Este módulo todavía no está conectado.')}>
                 <View style={styles.iconContainer}>
                     <MaterialCommunityIcons name="heart-pulse" size={36} color="#3368A0" />
                 </View>
@@ -57,7 +52,7 @@ const HomeScreen = () => {
             </TouchableOpacity>
 
             {/* Tarjeta Médicos */}
-            <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('Doctor Filter')}>
+            <TouchableOpacity style={styles.card} onPress={() => router.push('/medicos')}>
                 <View style={styles.iconContainer}>
                     <MaterialCommunityIcons name="medical-bag" size={36} color="#3368A0" />
                 </View>
@@ -68,7 +63,7 @@ const HomeScreen = () => {
             </TouchableOpacity>
 
             {/* Tarjeta Recetas */}
-            <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('')}>
+            <TouchableOpacity style={styles.card} onPress={() => Alert.alert('En preparación', 'Este módulo todavía no está conectado.')}>
                 <View style={styles.iconContainer}>
                     <MaterialCommunityIcons name="pill" size={36} color="#3368A0" />
                 </View>
@@ -79,7 +74,7 @@ const HomeScreen = () => {
             </TouchableOpacity>
 
             {/* Tarjeta Historial */}
-            <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('Historial')}>
+            <TouchableOpacity style={styles.card} onPress={() => Alert.alert('En preparación', 'El historial todavía no está conectado.')}>
                 <View style={styles.iconContainer}>
                     <MaterialCommunityIcons name="clipboard-pulse" size={36} color="#3368A0" />
                 </View>
