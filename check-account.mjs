@@ -1,0 +1,41 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import { Buffer } from 'node:buffer';
+const asModule = text => 'data:text/javascript;base64,' + Buffer.from(text).toString('base64');
+const load = path => fs.readFileSync(path, 'utf8');
+const profile = await import(asModule(load('frontend/src/utils/profile.js')));
+assert.deepEqual(profile.profileForm({ fecha_nacimiento: '1997-12-31T00:00:00.000000Z' }), { nombre_completo: '', telefono: '', fecha_nacimiento: '1997-12-31' });
+const date = new Date(2026, 10, 2);
+assert.deepEqual(profile.validateProfile({ nombre_completo: 'Nombre', telefono: '', fecha_nacimiento: '2000-02-29' }, date), {});
+for (const birth of ['2025-02-29', '2000-02-30', '02/03/1990', '2026-11-02', '2026-11-03']) {
+  assert.ok(profile.validateProfile({ nombre_completo: 'Nombre', telefono: '', fecha_nacimiento: birth }, date).fecha_nacimiento);
+}
+assert.ok(profile.validateProfile({ nombre_completo: ' ', telefono: '', fecha_nacimiento: '' }, date).nombre_completo);
+assert.deepEqual(profile.profilePayload({ nombre_completo: ' Ana ', telefono: ' ', fecha_nacimiento: '' }), { nombre_completo: 'Ana', telefono: null, fecha_nacimiento: null });
+const sessionURL = asModule(load('frontend/src/services/session.js'));
+const session = await import(sessionURL);
+const apiURL = asModule(load('frontend/src/services/api.js').replace("'./session'", JSON.stringify(sessionURL)));
+const { account } = await import(asModule(load('frontend/src/services/account.js').replace("'./api'", JSON.stringify(apiURL))));
+process.env.EXPO_PUBLIC_API_URL = 'http://test.local/api';
+session.setSession({ idToken: 'account-test-token', refreshToken: 'r', expiresIn: '3600' });
+const calls = [];
+globalThis.fetch = async (url, options) => {
+  calls.push({ url, options });
+  return { ok: true, status: 200, json: async () => ({ success: true, data: [], meta: { current_page: 2, last_page: 3 } }) };
+};
+await account.appointments(7, { state: '4', page: 2 });
+const query = new URL(calls[0].url);
+assert.equal(query.pathname, '/api/usuarios/7/citas');
+assert.equal(query.searchParams.get('id_estado'), '4');
+assert.equal(query.searchParams.get('page'), '2');
+assert.equal(query.searchParams.get('per_page'), '10');
+assert.equal(calls[0].options.headers.Authorization, 'Bearer account-test-token');
+await account.appointment('42');
+assert.equal(new URL(calls[1].url).pathname, '/api/citas/42');
+assert.throws(() => account.appointment('../users'), /válida/);
+assert.throws(() => account.appointments(null), /perfil/);
+await account.update(profile.profilePayload({ nombre_completo: 'Ana', telefono: '', fecha_nacimiento: '' }));
+assert.equal(calls[2].options.method, 'PUT');
+assert.equal(new URL(calls[2].url).pathname, '/api/auth/me');
+assert.deepEqual(JSON.parse(calls[2].options.body), { nombre_completo: 'Ana', telefono: null, fecha_nacimiento: null });
+console.log('OK: perfil, fechas, campos opcionales, historial personal, filtros, paginación, detalle y token.');

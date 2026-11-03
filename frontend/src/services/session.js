@@ -7,6 +7,7 @@ export function subscribeLogout(callback) {
   listeners.add(callback);
   return () => listeners.delete(callback);
 }
+export const sessionVersion = () => generation;
 export function clearSession() {
   generation += 1;
   session = null;

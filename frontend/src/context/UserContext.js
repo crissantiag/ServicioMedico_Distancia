@@ -8,6 +8,9 @@ export const UserProvider = ({ children }) => {
   useEffect(() => subscribeLogout(() => setUser(null)), []);
   const signIn = async (email, password) => setUser(await login(email, password));
   const signUp = async (name, email, password) => setUser(await register(name, email, password));
-  return <UserContext.Provider value={{ user, signIn, signUp, signOut: logout }}>{children}</UserContext.Provider>;
+  const updateUser = data => setUser(current =>
+    current && current.id_usuario === data.id_usuario ? { ...current, ...data } : current,
+  );
+  return <UserContext.Provider value={{ user, signIn, signUp, signOut: logout, updateUser }}>{children}</UserContext.Provider>;
 };
 export default UserContext;

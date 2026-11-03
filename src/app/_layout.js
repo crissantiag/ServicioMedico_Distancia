@@ -12,6 +12,9 @@ function Routes() {
     <Stack.Protected guard={!!user}>
       <Stack.Screen name="home" />
       <Stack.Screen name="medicos" />
+      <Stack.Screen name="historial" />
+      <Stack.Screen name="ajustes" />
+      <Stack.Screen name="citas/[id]" />
     </Stack.Protected>
   </Stack>;
 }

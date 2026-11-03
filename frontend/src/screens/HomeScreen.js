@@ -74,14 +74,20 @@ const HomeScreen = () => {
             </TouchableOpacity>
 
             {/* Tarjeta Historial */}
-            <TouchableOpacity style={styles.card} onPress={() => Alert.alert('En preparación', 'El historial todavía no está conectado.')}>
+            <TouchableOpacity style={styles.card} onPress={() => router.push('/historial')}>
                 <View style={styles.iconContainer}>
                     <MaterialCommunityIcons name="clipboard-pulse" size={36} color="#3368A0" />
                 </View>
                 <View style={styles.textContainer}>
-                    <Text style={styles.cardTitle}>Historial Médico</Text>
-                    <Text style={styles.cardSubtitle}>Tu expediente clínico digital completo</Text>
+                    <Text style={styles.cardTitle}>Historial de citas</Text>
+                    <Text style={styles.cardSubtitle}>Consulta tus citas y su estado</Text>
                 </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.card} onPress={() => router.push('/ajustes')}>
+                <View style={styles.iconContainer}><MaterialCommunityIcons name="cog-outline" size={36} color="#3368A0" /></View>
+                <View style={styles.textContainer}><Text style={styles.cardTitle}>Ajustes</Text>
+                    <Text style={styles.cardSubtitle}>Actualiza tus datos y administra tu sesión</Text></View>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.logoutButton} onPress={handleLogout} activeOpacity={0.8}>

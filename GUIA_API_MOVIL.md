@@ -100,3 +100,28 @@ Para mostrar el aviso, importar Alert desde react-native. `data` contiene los re
 - Eliminar: `api.delete('ruta')`.
 
 Usar las rutas de la colección Postman. Escribirlas sin la dirección del servidor ni el prefijo /api. **El manejador añade el token automáticamente**; las pantallas solo llaman a api y manejan el resultado o el error.
+
+## Historial de citas y ajustes
+
+En Inicio, abrir Historial de citas para ver las citas propias, filtrar por estado, cambiar de página y consultar el detalle. Deslizar hacia abajo actualiza la lista. No es el expediente clínico de diagnósticos.
+
+En Ajustes se editan nombre, teléfono y fecha de nacimiento (AAAA-MM-DD). El correo solo se muestra. Guardar actualiza también el nombre del inicio. Cerrar sesión vuelve al login.
+
+Se reutilizan account.js y api.js; no hay tablas ni paquetes nuevos. El filtro por estado requiere el CitaController actualizado en la API Laravel. Una cuenta nueva sin citas muestra una lista vacía, no datos de otro usuario.
+
+Para probar: entrar, abrir historial, filtrar, ver detalle, volver, editar perfil, guardar, comprobar el nombre al regresar al inicio y cerrar sesión. Si la API no responde, Reintentar vuelve a cargar; los errores al guardar mantienen los datos escritos.
+
+En Ajustes > Cambiar contraseña, escribir la actual, la nueva y su confirmación. El cambio se realiza en Firebase y mantiene la sesión con un token nuevo. No se envían contraseñas al backend Laravel.
+
+### Citas de semilla para revisar el historial
+
+Desde el backend Laravel:
+
+```powershell
+php artisan citas:semilla
+php artisan citas:semilla tu-correo-registrado@ejemplo.com
+```
+
+El primer comando prepara perfiles ficticios del equipo con doce citas cada uno. No crea sus cuentas de Firebase. El segundo agrega doce citas a un perfil que ya inició sesión en esa base, para verlas desde la app. No borra citas existentes y puede repetirse sin duplicar las citas de semilla. No ejecutar migrate:fresh para probar esto.
+
+El historial pide diez citas por página; Anterior y Ver siguientes navegan sin cargar todas las citas de una vez. El contador indica el rango y el total.
