@@ -31,7 +31,7 @@ const HomeScreen = () => {
                 Bienvenido, {user?.nombre_completo || 'Paciente'}
             </Text>
 
-            <TouchableOpacity style={styles.card} onPress={() => Alert.alert('En preparación', 'Este módulo todavía no está conectado.')}>
+            <TouchableOpacity style={styles.card} onPress={() => router.push('/citas/crear')}>
                 <View style={styles.iconContainer}>
                     <MaterialCommunityIcons name="calendar-clock" size={36} color="#3368A0" />
                 </View>

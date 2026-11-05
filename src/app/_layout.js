@@ -15,6 +15,7 @@ function Routes() {
       <Stack.Screen name="historial" />
       <Stack.Screen name="ajustes" />
       <Stack.Screen name="citas/[id]" />
+      <Stack.Screen name="citas/crear" />
       <Stack.Screen name="cita-detalle" />
     </Stack.Protected>
   </Stack>;

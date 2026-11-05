@@ -4,9 +4,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { api } from '../services/api';
 import { Picker } from '@react-native-picker/picker';
+import { useRouter } from 'expo-router'; // 1. Importación del router
 import { Ionicons } from '@expo/vector-icons';
 
 export default function DoctorFilterScreen() {
+
+  const router = useRouter();
+
   // Estados para los filtros seleccionados (IDs)
   const [idEspecialidad, setIdEspecialidad] = useState('');
   const [idCentro, setIdCentro] = useState('');
@@ -36,24 +40,44 @@ export default function DoctorFilterScreen() {
     finally { setLoadingCatalogos(false); }
   };
   const fetchMedicos = async (nextPage = 1) => {
-    setLoading(true);
-    setError('');
-    try {
-      const result = await api.get('medicos', {
-        id_especialidad: idEspecialidad, id_centro: idCentro,
-        idioma, per_page: 15, page: nextPage,
-      });
-      setMedicos(result.data);
-      setPage(nextPage);
-      setLastPage(result.meta?.last_page || 1);
-    } catch (failure) { setError(failure.message); setMedicos([]); }
-    finally { setLoading(false); }
-  };
+  setLoading(true);
+  setError('');
+  try {
+    const result = await api.get('medicos', {
+      id_especialidad: idEspecialidad,
+      id_centro: idCentro,
+      idioma,
+      per_page: 15,
+      page: nextPage,
+    });
+    
+    // Extraer adecuadamente el arreglo de médicos según la respuesta paginada
+    const lista = Array.isArray(result.data) ? result.data : (result.data?.data || []);
+    setMedicos(lista);
+    
+    setPage(nextPage);
+    setLastPage(result.meta?.last_page || result.last_page || 1);
+  } catch (failure) {
+    setError(failure.message);
+    setMedicos([]);
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     // Carga inicial; los filtros se aplican solo al pulsar Buscar.
     void Promise.resolve().then(() => { fetchCatalogos(); fetchMedicos(1); });
   }, []);
+
+  // Función para manejar el clic en Agendar Cita
+  const handleAgendar = (item) => {
+    const idMedico = item.id_medico || item.id;
+    router.push({
+      pathname: '/citas/crear',
+      params: { id_medico: idMedico }
+    });
+  };
 
   const renderDoctorCard = ({ item }) => (
     <View style={styles.card}>
@@ -77,7 +101,11 @@ export default function DoctorFilterScreen() {
         <Text style={styles.cardInfo}>Disponibilidad: {item.disponibilidad || 'Consultar horario'}</Text>
       </View>
 
-      <TouchableOpacity style={styles.btnAgendar} onPress={() => Alert.alert('En preparación', 'La agenda todavía no está conectada.')}>
+      {/* 2. Botón conectado a la función handleAgendar */}
+      <TouchableOpacity 
+        style={styles.btnAgendar} 
+        onPress={() => handleAgendar(item)}
+      >
         <Text style={styles.btnAgendarText}>Agendar Cita</Text>
       </TouchableOpacity>
     </View>

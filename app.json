@@ -28,7 +28,8 @@
     "plugins": [
       "expo-status-bar",
       "expo-asset",
-      "expo-router"
+      "expo-router",
+      "@react-native-community/datetimepicker"
     ],
     "scheme": "serviciosmedicos"
   }
