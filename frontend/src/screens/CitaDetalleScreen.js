@@ -4,8 +4,10 @@ import { useLocalSearchParams } from 'expo-router';
 import { account } from '../services/account';
 import { useResource } from '../hooks/useResource';
 import { AccountPage, Feedback, appointmentDate, styles } from '../components/AccountUI';
+import { useRouter } from 'expo-router';
 
 export default function CitaDetalleScreen() {
+  const router = useRouter();
   const { id } = useLocalSearchParams();
   const load = useCallback(() => account.appointment(id), [id]);
   const result = useResource(load);
@@ -27,6 +29,12 @@ export default function CitaDetalleScreen() {
         {(cita.receta.detalles || []).map(item => <View key={item.id_detalle} style={{ marginTop: 10 }}>
           <Text style={styles.label}>{item.medicamento?.nombre_medicamento || 'Medicamento'}</Text>
           <Text style={styles.text}>{[item.dosis, item.frecuencia, item.duracion].filter(Boolean).join(' · ')}</Text>
+          <TouchableOpacity
+            style={styles.btnDetalle}
+            onPress={() => router.push(`/cita-detalle?id=${item.id || item.id_cita}`)}
+          >
+            <Text style={styles.btnDetalleText}>Ver Detalles</Text>
+          </TouchableOpacity>
         </View>)}
       </View> : null}
     </> : null}

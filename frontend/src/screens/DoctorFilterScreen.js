@@ -1,15 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Alert,
-  View,
-  Text,
-  FlatList,
-  TouchableOpacity,
-  StyleSheet,
-  ActivityIndicator,
-  StatusBar,
-  ScrollView,
-} from 'react-native';
+import {Alert, View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator, StatusBar, ScrollView,} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { api } from '../services/api';
@@ -63,7 +53,6 @@ export default function DoctorFilterScreen() {
   useEffect(() => {
     // Carga inicial; los filtros se aplican solo al pulsar Buscar.
     void Promise.resolve().then(() => { fetchCatalogos(); fetchMedicos(1); });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const renderDoctorCard = ({ item }) => (
@@ -97,8 +86,7 @@ export default function DoctorFilterScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor="#3368A0" barStyle="light-content" />
-      
-      {/* Barra superior limpia con flecha a la izquierda */}
+ 
       <View style={styles.topAppBar}>
         <TouchableOpacity 
           style={styles.iconButton} 
@@ -118,7 +106,6 @@ export default function DoctorFilterScreen() {
         ) : (
           <View style={styles.filterContainer}>
             
-            {/* Selector Especialidades */}
             <Text style={styles.label}>Especialidad</Text>
             <View style={styles.pickerWrapper}>
               <Picker
@@ -137,7 +124,6 @@ export default function DoctorFilterScreen() {
               </Picker>
             </View>
 
-            {/* Selector Centros Médicos */}
             <Text style={styles.label}>Centro Médico / Ubicación</Text>
             <View style={styles.pickerWrapper}>
               <Picker
@@ -156,7 +142,6 @@ export default function DoctorFilterScreen() {
               </Picker>
             </View>
 
-            {/* Selector Idioma */}
             <Text style={styles.label}>Idioma</Text>
             <View style={styles.pickerWrapper}>
               <Picker
@@ -212,12 +197,12 @@ const styles = StyleSheet.create({
   },
   topAppBar: {
     height: 60,
-    backgroundColor: '#FFFFFF', // Fondo blanco limpio como en tu captura
+    backgroundColor: '#FFFFFF', 
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 10,
-    elevation: 2, // Sombra suave en Android
-    shadowColor: '#000', // Sombra en iOS
+    elevation: 2, 
+    shadowColor: '#000', 
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
@@ -229,8 +214,8 @@ const styles = StyleSheet.create({
   headerTitle: { 
     fontSize: 18, 
     fontWeight: 'bold', 
-    color: '#1E293B', // Texto oscuro elegante
-    marginLeft: 10,   // Separación limpia respecto a la flecha
+    color: '#1E293B', 
+    marginLeft: 10,   
   },
   headerSubtitle: { 
     fontSize: 13, 
