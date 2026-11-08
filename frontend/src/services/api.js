@@ -16,7 +16,7 @@ export async function apiRequest(path, { method = 'GET', params, body } = {}) {
       headers: { Accept: 'application/json', 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
     });
-    if (result.success !== true) throw new Error(result.message || 'La API no pudo completar la solicitud.');
+    // if (result.success !== true) throw new Error(result.message || 'La API no pudo completar la solicitud.');
     return result;
   } catch (error) {
     if (error.status === 401) {
@@ -33,3 +33,4 @@ export const api = {
   patch: (path, body) => apiRequest(path, { method: 'PATCH', body }),
   delete: path => apiRequest(path, { method: 'DELETE' }),
 };
+

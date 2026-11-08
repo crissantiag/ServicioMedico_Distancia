@@ -1,0 +1,16 @@
+$kind: http-request
+url: "{{base_url}}/admin/asignaciones"
+method: POST
+headers:
+  X-Usuario-Id: "{{admin_dev}}"
+  Accept: application/json
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "id_medico": 1,
+      "id_centro": 1,
+      "horario_atencion": "Lunes 8:00 a 12:00"
+    }
+order: 2000

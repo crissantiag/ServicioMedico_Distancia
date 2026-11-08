@@ -1,0 +1,10 @@
+$kind: http-request
+url: "{{base_url}}/admin/usuarios?rol=medico&per_page=15"
+method: GET
+headers:
+  Accept: application/json
+  X-Usuario-Id: "{{admin_dev}}"
+queryParams:
+  rol: medico
+  per_page: "15"
+order: 2000

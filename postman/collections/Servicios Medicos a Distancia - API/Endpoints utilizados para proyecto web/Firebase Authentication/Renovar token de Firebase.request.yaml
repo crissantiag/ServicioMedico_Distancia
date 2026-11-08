@@ -1,0 +1,25 @@
+$kind: http-request
+url: https://securetoken.googleapis.com/v1/token?key={{firebase_api_key}}
+method: POST
+queryParams:
+  key: "{{firebase_api_key}}"
+body:
+  type: urlencoded
+  content:
+    grant_type: refresh_token
+    refresh_token: "{{firebase_refresh_token}}"
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: |-
+      const body = pm.response.json();
+      if (pm.response.code === 200 && (body.idToken || body.id_token)) {
+          pm.collectionVariables.set("token", body.idToken || body.id_token);
+          pm.collectionVariables.set("firebase_refresh_token", body.refreshToken || body.refresh_token);
+      } else {
+          pm.collectionVariables.unset("token");
+          pm.collectionVariables.unset("firebase_refresh_token");
+      }
+    language: text/javascript
+order: 2000

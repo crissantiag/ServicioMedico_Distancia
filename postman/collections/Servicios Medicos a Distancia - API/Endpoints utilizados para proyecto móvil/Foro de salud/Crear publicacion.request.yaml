@@ -1,0 +1,16 @@
+$kind: http-request
+url: "{{base_url}}/foro"
+method: POST
+headers:
+  Accept: application/json
+  Content-Type: application/json
+body:
+  type: json
+  content: "{\r
+
+    \    \"titulo\":  \"Dudas sobre vacunacion\",\r
+
+    \    \"contenido\":  \"Que vacunas recomiendan para adultos?\"\r
+
+    }"
+order: 3000

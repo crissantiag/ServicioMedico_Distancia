@@ -1,0 +1,8 @@
+$kind: http-request
+url: "{{base_url}}/historial-medico?id_tipo_registro="
+method: GET
+headers:
+  Accept: application/json
+queryParams:
+  id_tipo_registro: ""
+order: 1000

@@ -1,0 +1,22 @@
+$kind: http-request
+url: "{{base_url}}/citas"
+method: POST
+headers:
+  Accept: application/json
+  Content-Type: application/json
+body:
+  type: json
+  content: "{\r
+
+    \    \"id_medico\":  1,\r
+
+    \    \"fecha_hora\":  \"2026-12-15 10:30:00\",\r
+
+    \    \"motivo_consulta\":  \"Dolor de cabeza persistente\"\r
+
+    }"
+scripts:
+  - type: afterResponse
+    code: const j = pm.response.json(); if (j.data && j.data.id_cita) { pm.collectionVariables.set('id_cita', j.data.id_cita); }
+    language: text/javascript
+order: 3000

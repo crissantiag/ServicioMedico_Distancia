@@ -1,0 +1,14 @@
+$kind: http-request
+url: "{{base_url}}/admin/especialidades/{{id_admin}}"
+method: PUT
+headers:
+  X-Usuario-Id: "{{admin_dev}}"
+  Accept: application/json
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "nombre_especialidad": "Neurología"
+    }
+order: 4000

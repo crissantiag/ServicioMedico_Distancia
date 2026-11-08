@@ -1,0 +1,8 @@
+$kind: http-request
+url: "{{base_url}}/centros-medicos?id_especialidad=1"
+method: GET
+headers:
+  Accept: application/json
+queryParams:
+  id_especialidad: "1"
+order: 2000

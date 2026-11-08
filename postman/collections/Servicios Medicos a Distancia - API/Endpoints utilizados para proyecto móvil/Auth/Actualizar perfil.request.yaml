@@ -1,0 +1,15 @@
+$kind: http-request
+url: "{{base_url}}/auth/me"
+method: PUT
+headers:
+  Accept: application/json
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+        "nombre_completo":  "Ana Lopez",
+        "telefono":  "5551112222",
+        "fecha_nacimiento":  "1995-04-12"
+    }
+order: 2000

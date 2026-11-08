@@ -1,0 +1,7 @@
+$kind: http-request
+url: "{{base_url}}/admin/medicos/{{id_admin}}"
+method: DELETE
+headers:
+  X-Usuario-Id: "{{admin_dev}}"
+  Accept: application/json
+order: 5000

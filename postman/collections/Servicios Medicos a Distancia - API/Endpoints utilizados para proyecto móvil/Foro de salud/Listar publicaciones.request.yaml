@@ -1,0 +1,8 @@
+$kind: http-request
+url: "{{base_url}}/foro?q="
+method: GET
+headers:
+  Accept: application/json
+queryParams:
+  q: ""
+order: 1000

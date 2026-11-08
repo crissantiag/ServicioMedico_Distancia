@@ -1,0 +1,3 @@
+$kind: collection
+description: Solicitudes para el panel Laravel. En desarrollo se usa admin_dev=1; con Firebase, un token de administrador. Incluye copias de las lecturas compartidas necesarias para el frontend.
+order: 2000

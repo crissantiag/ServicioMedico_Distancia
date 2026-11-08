@@ -41,7 +41,7 @@ const HomeScreen = () => {
                 </View>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.card} onPress={() => Alert.alert('En preparación', 'Este módulo todavía no está conectado.')}>
+            {/*<TouchableOpacity style={styles.card} onPress={() => Alert.alert('En preparación', 'Este módulo todavía no está conectado.')}>
                 <View style={styles.iconContainer}>
                     <MaterialCommunityIcons name="heart-pulse" size={36} color="#3368A0" />
                 </View>
@@ -49,7 +49,7 @@ const HomeScreen = () => {
                     <Text style={styles.cardTitle}>Consultas</Text>
                     <Text style={styles.cardSubtitle}>Historial y detalles de tus atenciones</Text>
                 </View>
-            </TouchableOpacity>
+            </TouchableOpacity>*/}
 
             {/* Tarjeta Médicos */}
             <TouchableOpacity style={styles.card} onPress={() => router.push('/medicos')}>
@@ -63,7 +63,7 @@ const HomeScreen = () => {
             </TouchableOpacity>
 
             {/* Tarjeta Recetas */}
-            <TouchableOpacity style={styles.card} onPress={() => Alert.alert('En preparación', 'Este módulo todavía no está conectado.')}>
+            <TouchableOpacity style={styles.card} onPress={() => router.push('/recetas')}>
                 <View style={styles.iconContainer}>
                     <MaterialCommunityIcons name="pill" size={36} color="#3368A0" />
                 </View>

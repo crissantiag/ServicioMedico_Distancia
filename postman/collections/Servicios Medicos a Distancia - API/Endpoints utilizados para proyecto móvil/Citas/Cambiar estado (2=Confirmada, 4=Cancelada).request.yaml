@@ -1,0 +1,10 @@
+$kind: http-request
+url: "{{base_url}}/citas/{{id_cita}}/estado"
+method: PATCH
+headers:
+  Accept: application/json
+  Content-Type: application/json
+body:
+  type: json
+  content: "{\r\n    \"id_estado\":  4\r\n}"
+order: 6000

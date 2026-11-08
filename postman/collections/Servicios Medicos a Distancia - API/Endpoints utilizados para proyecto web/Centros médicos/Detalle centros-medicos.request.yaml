@@ -1,0 +1,7 @@
+$kind: http-request
+url: "{{base_url}}/admin/centros-medicos/{{id_admin}}"
+method: GET
+headers:
+  X-Usuario-Id: "{{admin_dev}}"
+  Accept: application/json
+order: 3000

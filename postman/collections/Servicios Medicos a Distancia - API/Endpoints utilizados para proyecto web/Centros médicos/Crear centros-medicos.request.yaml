@@ -1,0 +1,18 @@
+$kind: http-request
+url: "{{base_url}}/admin/centros-medicos"
+method: POST
+headers:
+  X-Usuario-Id: "{{admin_dev}}"
+  Accept: application/json
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "nombre_centro": "Centro de prueba",
+      "direccion": "San Salvador",
+      "latitud": 13.69,
+      "longitud": -89.19,
+      "telefono_contacto": "2222-2222"
+    }
+order: 2000

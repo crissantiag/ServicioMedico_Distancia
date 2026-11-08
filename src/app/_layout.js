@@ -10,13 +10,16 @@ function Routes() {
       <Stack.Screen name="register" />
     </Stack.Protected>
     <Stack.Protected guard={!!user}>
-      <Stack.Screen name="home" />
+      <Stack.Screen name="(tabs)" />
       <Stack.Screen name="medicos" />
-      <Stack.Screen name="historial" />
       <Stack.Screen name="ajustes" />
+      <Stack.Screen name="historial" />
       <Stack.Screen name="citas/[id]" />
       <Stack.Screen name="citas/crear" />
-      <Stack.Screen name="cita-detalle" />
+      <Stack.Screen name="recetas/index" />
+      <Stack.Screen name="recetas/[id]" />
+      <Stack.Screen name="recetas/crear" />
+      <Stack.Screen name="recetas/editar" />
     </Stack.Protected>
   </Stack>;
 }

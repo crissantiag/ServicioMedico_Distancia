@@ -1,0 +1,7 @@
+$kind: http-request
+name: Listar centros (lat/lng)
+url: "{{base_url}}/centros-medicos"
+method: GET
+headers:
+  Accept: application/json
+order: 1000

@@ -1,0 +1,7 @@
+$kind: http-request
+url: "{{base_url}}/especialidades"
+method: GET
+headers:
+  Accept: application/json
+  X-Usuario-Id: "{{admin_dev}}"
+order: 1000

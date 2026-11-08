@@ -1,0 +1,18 @@
+$kind: http-request
+name: Reprogramar / editar cita
+url: "{{base_url}}/citas/{{id_cita}}"
+method: PUT
+headers:
+  Accept: application/json
+  Content-Type: application/json
+  X-Usuario-Id: "{{admin_dev}}"
+body:
+  type: json
+  content: "{\r
+
+    \    \"fecha_hora\":  \"2026-12-16 11:00:00\",\r
+
+    \    \"motivo_consulta\":  \"Control de seguimiento\"\r
+
+    }"
+order: 3000

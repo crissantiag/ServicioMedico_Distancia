@@ -1,0 +1,52 @@
+$kind: collection
+description: "API compartida de Servicios Médicos. En este repositorio Backend-laravel, ejecutar php artisan serve y usar http://127.0.0.1:8000/api. Dos carpetas principales separan las solicitudes de móvil y web. Si se inicia la API con otro puerto, ajustar base_url en Postman. Desarrollo: token vacío, usuario_dev para móvil y admin_dev para web. Con Firebase activo se requiere un token válido con el rol correspondiente."
+variables:
+  - key: base_url
+    value: http://127.0.0.1:8000/api
+    disabled: false
+    secret: false
+  - key: token
+    value: ""
+    disabled: false
+    secret: false
+  - key: id_cita
+    value: "1"
+    disabled: false
+    secret: false
+  - key: usuario_dev
+    value: "2"
+    disabled: false
+    secret: false
+  - key: admin_dev
+    value: "1"
+    disabled: false
+    secret: false
+  - key: id_admin
+    value: "1"
+    disabled: false
+    secret: false
+  - key: firebase_api_key
+    value: "{{google_api_key_17aq}}"
+    disabled: false
+    secret: false
+  - key: firebase_email
+    value: ""
+    disabled: false
+    secret: false
+  - key: firebase_password
+    value: ""
+    disabled: false
+    secret: false
+  - key: firebase_refresh_token
+    value: ""
+    disabled: false
+    secret: false
+  - key: google_api_key_17aq
+    secret: true
+    disabled: false
+auth:
+  - id: 28d767f1-ce44-4ff8-b936-7465fcc91405
+    type: bearer
+    name: bearer auth
+    credentials:
+      token: "{{token}}"

@@ -1,0 +1,3 @@
+$kind: collection
+description: Completar firebase_email y firebase_password de forma local en Postman. La API key ya identifica el proyecto. El login guarda token automáticamente. El registro crea una cuenta Firebase; GET /auth/me crea su perfil paciente en MySQL. Las cuentas médico y administrador deben ser vinculadas por Alex. No exportar contraseñas, tokens ni refresh tokens.
+order: 1000

@@ -1,0 +1,7 @@
+$kind: http-request
+url: "{{base_url}}/estados-cita"
+method: GET
+headers:
+  Accept: application/json
+  X-Usuario-Id: "{{admin_dev}}"
+order: 2000

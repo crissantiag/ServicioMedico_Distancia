@@ -28,9 +28,10 @@ export function Feedback({ loading, error, retry }) {
   return <View style={styles.feedback} accessibilityRole="alert"><Text style={styles.error}>{error}</Text><Action onPress={retry} secondary>Reintentar</Action></View>;
 }
 export function appointmentDate(value) {
-  if (!value) return 'Fecha no disponible';
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? 'Fecha no disponible' : date.toLocaleString('es', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  const m = /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})/.exec(String(value || ''));
+  if (!m) return 'Fecha no disponible';
+  const date = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]), Number(m[4]), Number(m[5]));
+  return date.toLocaleString('es', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 export const styles = StyleSheet.create({
   page: { flex: 1, backgroundColor: '#F2EFE7' },

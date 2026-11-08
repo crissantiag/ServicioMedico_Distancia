@@ -1,0 +1,13 @@
+$kind: http-request
+url: "{{base_url}}/medicos?id_especialidad=1&nombre=&idioma=&id_centro=&per_page=15"
+method: GET
+headers:
+  Accept: application/json
+  X-Usuario-Id: "{{admin_dev}}"
+queryParams:
+  id_especialidad: "1"
+  nombre: ""
+  idioma: ""
+  id_centro: ""
+  per_page: "15"
+order: 6000

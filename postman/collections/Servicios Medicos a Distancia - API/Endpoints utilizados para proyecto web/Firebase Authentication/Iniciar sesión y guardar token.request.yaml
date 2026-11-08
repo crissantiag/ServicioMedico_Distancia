@@ -1,0 +1,30 @@
+$kind: http-request
+url: https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={{firebase_api_key}}
+method: POST
+headers:
+  Content-Type: application/json
+queryParams:
+  key: "{{firebase_api_key}}"
+body:
+  type: json
+  content: |-
+    {
+      "email": "{{firebase_email}}",
+      "password": "{{firebase_password}}",
+      "returnSecureToken": true
+    }
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: |-
+      const body = pm.response.json();
+      if (pm.response.code === 200 && (body.idToken || body.id_token)) {
+          pm.collectionVariables.set("token", body.idToken || body.id_token);
+          pm.collectionVariables.set("firebase_refresh_token", body.refreshToken || body.refresh_token);
+      } else {
+          pm.collectionVariables.unset("token");
+          pm.collectionVariables.unset("firebase_refresh_token");
+      }
+    language: text/javascript
+order: 1000

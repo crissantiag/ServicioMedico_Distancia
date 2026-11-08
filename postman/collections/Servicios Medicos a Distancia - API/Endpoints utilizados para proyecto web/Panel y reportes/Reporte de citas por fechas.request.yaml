@@ -1,0 +1,11 @@
+$kind: http-request
+url: "{{base_url}}/admin/reportes/citas?desde=2026-10-01&hasta=2026-10-31&per_page=15"
+method: GET
+headers:
+  X-Usuario-Id: "{{admin_dev}}"
+  Accept: application/json
+queryParams:
+  desde: 2026-10-01
+  hasta: 2026-10-31
+  per_page: "15"
+order: 2000

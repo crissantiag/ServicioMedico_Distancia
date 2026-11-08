@@ -1,19 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  TextInput,
-  ActivityIndicator,
+import { View, Text, StyleSheet, TouchableOpacity, TextInput,
   Alert,
   ScrollView,
   Platform
 } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { api } from '../services/api';
+import { AccountPage, Action, Feedback } from '../components/AccountUI';
 
 export default function CitaScreen() {
   const router = useRouter();
@@ -114,130 +110,222 @@ export default function CitaScreen() {
     }
   };
 
-  if (loadingData) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#0066CC" />
-      </View>
-    );
-  }
-
-  // Buscar el médico seleccionado para mostrar su disponibilidad de forma informativa
-  const medicoActual = medicos.find(m => (m.id_medico || m.id) === parseInt(medicoSeleccionado, 10));
+  const medicoActual = medicos.find(m => String(m.id_medico || m.id) === String(medicoSeleccionado));
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.padding}>
-      <Text style={styles.title}>Agendar Cita Médica</Text>
+    <AccountPage title="Agendar cita">
+      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+        <Feedback loading={loadingData} error="" retry={cargarMedicos} />
 
-      {/* Desplegable de Médicos */}
-      <Text style={styles.label}>Seleccionar Médico *</Text>
-      <View style={styles.pickerBox}>
-        <Picker
-  selectedValue={String(medicoSeleccionado)}
-  onValueChange={(val) => setMedicoSeleccionado(String(val))}
->
-  <Picker.Item label="Seleccione un médico..." value="" />
-  {medicos.map((item) => {
-    const itemKey = String(item.id_medico || item.id);
-    const nombreMostrar = item.nombre_completo || 
-                         (item.usuario ? item.usuario.nombre_completo : null) || 
-                         'Médico';
-    const especialidadMostrar = item.especialidad?.nombre_especialidad || '';
+        {!loadingData ? (
+          <View style={styles.card}>
+            <View style={styles.encabezado}>
+              <View style={styles.iconBox}>
+                <MaterialCommunityIcons name="calendar-clock" size={32} color="#3368A0" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.cardTitle}>Programa tu cita</Text>
+                <Text style={styles.cardSubtitle}>Elige médico, fecha y hora</Text>
+              </View>
+            </View>
 
-    return (
-      <Picker.Item 
-        key={itemKey} 
-        label={`${nombreMostrar} ${especialidadMostrar ? `- ${especialidadMostrar}` : ''}`} 
-        value={itemKey} // El valor debe ser una string que coincida con medicoSeleccionado
-      />
-    );
-  })}
-</Picker>
-      </View>
+            {/* Médico */}
+            <Text style={styles.label}>Seleccionar médico *</Text>
+            <View style={styles.pickerBox}>
+              <Picker
+                selectedValue={String(medicoSeleccionado)}
+                onValueChange={(val) => setMedicoSeleccionado(String(val))}
+              >
+                <Picker.Item label="Seleccione un médico..." value="" />
+                {medicos.map((item) => {
+                  const itemKey = String(item.id_medico || item.id);
+                  const nombreMostrar = item.nombre_completo ||
+                    (item.usuario ? item.usuario.nombre_completo : null) ||
+                    'Médico';
+                  const especialidadMostrar = item.especialidad?.nombre_especialidad || '';
+                  return (
+                    <Picker.Item
+                      key={itemKey}
+                      label={`${nombreMostrar}${especialidadMostrar ? ` - ${especialidadMostrar}` : ''}`}
+                      value={itemKey}
+                    />
+                  );
+                })}
+              </Picker>
+            </View>
 
-      {/* Mostrar información de disponibilidad del médico seleccionado */}
-      {medicoActual?.disponibilidad && (
-        <View style={styles.infoBox}>
-          <Text style={styles.infoText}>
-            📅 <Text style={{ fontWeight: 'bold' }}>Disponibilidad:</Text> {medicoActual.disponibilidad}
-          </Text>
-        </View>
-      )}
+            {medicoActual?.disponibilidad ? (
+              <View style={styles.infoBox}>
+                <MaterialCommunityIcons name="clock-outline" size={20} color="#24517E" style={{ marginRight: 8 }} />
+                <Text style={styles.infoText}>
+                  <Text style={{ fontWeight: 'bold' }}>Disponibilidad: </Text>
+                  {medicoActual.disponibilidad}
+                </Text>
+              </View>
+            ) : null}
 
-      {/* Selectores de Fecha y Hora */}
-      <Text style={styles.label}>Fecha y Hora de Atención *</Text>
-      <View style={styles.row}>
-        <TouchableOpacity style={styles.selectorBtn} onPress={() => setShowDatePicker(true)}>
-          <Text style={styles.selectorText}>{fecha.toLocaleDateString()}</Text>
-        </TouchableOpacity>
+            {/* Fecha y hora */}
+            <Text style={styles.label}>Fecha y hora de atención *</Text>
+            <View style={styles.row}>
+              <TouchableOpacity accessibilityRole="button" accessibilityLabel="Elegir fecha"
+                style={styles.selectorBtn} onPress={() => setShowDatePicker(true)}>
+                <MaterialCommunityIcons name="calendar" size={20} color="#3368A0" />
+                <Text style={styles.selectorText}>
+                  {fecha.toLocaleDateString('es', { day: 'numeric', month: 'short', year: 'numeric' })}
+                </Text>
+              </TouchableOpacity>
 
-        <TouchableOpacity style={styles.selectorBtn} onPress={() => setShowTimePicker(true)}>
-          <Text style={styles.selectorText}>
-            {fecha.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-          </Text>
-        </TouchableOpacity>
-      </View>
+              <TouchableOpacity accessibilityRole="button" accessibilityLabel="Elegir hora"
+                style={styles.selectorBtn} onPress={() => setShowTimePicker(true)}>
+                <MaterialCommunityIcons name="clock-outline" size={20} color="#3368A0" />
+                <Text style={styles.selectorText}>
+                  {fecha.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </Text>
+              </TouchableOpacity>
+            </View>
 
-      {showDatePicker && (
-        <DateTimePicker
-          value={fecha}
-          mode="date"
-          display="default"
-          minimumDate={new Date()}
-          onChange={handleDateChange}
-        />
-      )}
+            {showDatePicker && (
+              <DateTimePicker
+                value={fecha}
+                mode="date"
+                display="default"
+                minimumDate={new Date()}
+                onChange={handleDateChange}
+              />
+            )}
 
-      {showTimePicker && (
-        <DateTimePicker
-          value={fecha}
-          mode="time"
-          display="default"
-          onChange={handleTimeChange}
-        />
-      )}
+            {showTimePicker && (
+              <DateTimePicker
+                value={fecha}
+                mode="time"
+                display="default"
+                onChange={handleTimeChange}
+              />
+            )}
 
-      {/* Campo de Motivo */}
-      <Text style={styles.label}>Motivo de la Consulta</Text>
-      <TextInput
-        style={styles.inputArea}
-        placeholder="Describa brevemente el motivo..."
-        multiline
-        numberOfLines={3}
-        value={motivoConsulta}
-        onChangeText={setMotivoConsulta}
-      />
+            {/* Motivo */}
+            <Text style={styles.label}>Motivo de la consulta</Text>
+            <TextInput
+              style={styles.inputArea}
+              placeholder="Describa brevemente el motivo..."
+              placeholderTextColor="#64748B"
+              multiline
+              numberOfLines={3}
+              maxLength={1000}
+              value={motivoConsulta}
+              onChangeText={setMotivoConsulta}
+            />
 
-      {/* Botón de Enviar */}
-      <TouchableOpacity 
-        style={[styles.submitBtn, loading && styles.disabledBtn]} 
-        onPress={handleGuardarCita}
-        disabled={loading}
-      >
-        {loading ? (
-          <ActivityIndicator color="#FFF" />
-        ) : (
-          <Text style={styles.submitText}>Confirmar y Agendar</Text>
-        )}
-      </TouchableOpacity>
-    </ScrollView>
+            <Action onPress={handleGuardarCita} disabled={loading}>
+              {loading ? 'Agendando…' : 'Confirmar y agendar'}
+            </Action>
+          </View>
+        ) : null}
+      </ScrollView>
+    </AccountPage>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F8FAFC' },
-  padding: { padding: 20 },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  title: { fontSize: 22, fontWeight: 'bold', color: '#0F172A', marginBottom: 16, textAlign: 'center' },
-  label: { fontSize: 14, fontWeight: '600', color: '#475569', marginTop: 14, marginBottom: 6 },
-  pickerBox: { backgroundColor: '#FFF', borderRadius: 8, borderWidth: 1, borderColor: '#CBD5E1' },
-  infoBox: { backgroundColor: '#E0F2FE', padding: 10, borderRadius: 8, marginTop: 10, borderWidth: 1, borderColor: '#BAE6FD' },
-  infoText: { color: '#0369A1', fontSize: 13 },
-  row: { flexDirection: 'row', justifyContent: 'space-between' },
-  selectorBtn: { flex: 0.48, backgroundColor: '#FFF', padding: 12, borderRadius: 8, borderWidth: 1, borderColor: '#CBD5E1', alignItems: 'center' },
-  selectorText: { fontSize: 14, color: '#1E293B' },
-  inputArea: { backgroundColor: '#FFF', borderRadius: 8, borderWidth: 1, borderColor: '#CBD5E1', padding: 12, textAlignVertical: 'top', fontSize: 14 },
-  submitBtn: { backgroundColor: '#0284C7', padding: 15, borderRadius: 8, alignItems: 'center', marginTop: 24 },
-  disabledBtn: { backgroundColor: '#94A3B8' },
-  submitText: { color: '#FFF', fontSize: 16, fontWeight: 'bold' }
+const styles = StyleSheet.create(
+{
+  content: { 
+    padding: 20, 
+    paddingBottom: 35 
+  },
+  card: {
+    backgroundColor: '#FFFFFF', 
+    borderColor: '#66A3BF', 
+    borderWidth: 1.5, 
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: '#3368A0', 
+    shadowOffset: { width: 0, height: 6 }, 
+    shadowOpacity: 0.1, 
+    shadowRadius: 6, 
+    elevation: 4,
+  },
+  encabezado: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    marginBottom: 6 
+  },
+  iconBox: {
+    width: 60, 
+    height: 60, 
+    borderRadius: 12, 
+    backgroundColor: '#E6F0FA',
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    marginRight: 16,
+  },
+  cardTitle: { 
+    fontSize: 20, 
+    fontWeight: 'bold', 
+    color: '#3368A0' 
+  },
+  cardSubtitle: { 
+    fontSize: 14, 
+    color: '#66A3BF', 
+    marginTop: 2 
+  },
+  label: { 
+    fontSize: 15, 
+    fontWeight: 'bold', 
+    color: '#334155', 
+    marginTop: 18, 
+    marginBottom: 6 
+  },
+  pickerBox: { 
+    backgroundColor: '#FFFFFF', 
+    borderRadius: 10, 
+    borderWidth: 1, 
+    borderColor: '#94AFC5' 
+  },
+  infoBox: {
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    backgroundColor: '#E6F0FA',
+    padding: 12, 
+    borderRadius: 10, 
+    marginTop: 10,
+  },
+  infoText: { 
+    flex: 1, 
+    color: '#24517E', 
+    fontSize: 14, 
+    lineHeight: 20 
+  },
+  row: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    gap: 10 
+  },
+  selectorBtn: {
+    flex: 1, 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'center', 
+    gap: 8,
+    backgroundColor: '#FFFFFF', 
+    minHeight: 48, 
+    borderRadius: 10, 
+    borderWidth: 1, 
+    borderColor: '#94AFC5',
+  },
+  selectorText: { 
+    fontSize: 15, 
+    color: '#1E293B' 
+  },
+  inputArea: {
+    backgroundColor: '#FFFFFF', 
+    color: '#1E293B', 
+    borderRadius: 10, 
+    borderWidth: 1, 
+    borderColor: '#94AFC5',
+    padding: 12, 
+    minHeight: 90, 
+    textAlignVertical: 'top', 
+    fontSize: 16, 
+    marginBottom: 6,
+  },
 });

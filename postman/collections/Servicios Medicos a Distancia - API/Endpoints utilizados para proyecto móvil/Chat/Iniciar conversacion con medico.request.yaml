@@ -1,0 +1,10 @@
+$kind: http-request
+url: "{{base_url}}/conversaciones"
+method: POST
+headers:
+  Accept: application/json
+  Content-Type: application/json
+body:
+  type: json
+  content: "{\r\n    \"id_medico\":  1\r\n}"
+order: 2000

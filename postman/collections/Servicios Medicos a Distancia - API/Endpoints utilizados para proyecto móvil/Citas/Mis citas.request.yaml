@@ -1,0 +1,10 @@
+$kind: http-request
+url: "{{base_url}}/citas?id_estado=&desde=&hasta="
+method: GET
+headers:
+  Accept: application/json
+queryParams:
+  id_estado: ""
+  desde: ""
+  hasta: ""
+order: 1000

@@ -1,0 +1,7 @@
+$kind: collection
+description: Solicitudes de la app móvil. En desarrollo se usa usuario_dev (2=paciente, 3=médico). Con Firebase, usar token del usuario correspondiente.
+scripts:
+  - type: http:beforeRequest
+    code: 'if (!pm.request.url.toString().includes("googleapis.com") && !pm.collectionVariables.get("token")) { pm.request.headers.upsert({ key: "X-Usuario-Id", value: pm.collectionVariables.get("usuario_dev") }); }'
+    language: text/javascript
+order: 1000
