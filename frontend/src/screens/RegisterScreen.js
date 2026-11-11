@@ -1,9 +1,16 @@
-import React, { useState, useContext } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import React, { useState, useContext, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { router } from 'expo-router';
-import { MaterialCommunityIcons } from '@expo/vector-icons'; 
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Picker } from '@react-native-picker/picker';
 
 import { UserContext } from '../context/UserContext';
+import { registrationSpecialties } from '../services/auth';
+
+const ROLES = [
+    { value: 'paciente', label: 'Paciente', icon: 'heart-pulse' },
+    { value: 'medico', label: 'Médico', icon: 'stethoscope' },
+];
 
 const RegisterScreen = () => {
     const { signUp } = useContext(UserContext);
@@ -12,6 +19,14 @@ const RegisterScreen = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [rol, setRol] = useState('paciente');
+    const [specialties, setSpecialties] = useState([]);
+    const [specialty, setSpecialty] = useState('');
+
+    useEffect(() => {
+        if (rol !== 'medico' || specialties.length) return;
+        registrationSpecialties().then(setSpecialties).catch(error => Alert.alert('Especialidades', error.message));
+    }, [rol, specialties.length]);
 
     const handleRegister = async () => {
         if (busy) return;
@@ -19,8 +34,17 @@ const RegisterScreen = () => {
             Alert.alert('Revisa tus datos', 'Completa nombre, correo y una contraseña de al menos 6 caracteres.');
             return;
         }
+        if (rol === 'medico' && !specialty) {
+            Alert.alert('Revisa tus datos', 'Selecciona tu especialidad.');
+            return;
+        }
         setBusy(true);
-        try { await signUp(username, email, password); }
+        try {
+            await signUp(username, email, password, {
+                rol,
+                ...(rol === 'medico' ? { id_especialidad: Number(specialty) } : {}),
+            });
+        }
         catch (error) { Alert.alert('Registro', error.message); }
         finally { setBusy(false); }
     };
@@ -28,13 +52,26 @@ const RegisterScreen = () => {
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Crear Cuenta</Text>
-            <Text style={styles.subtitle}>Crea tu cuenta de paciente</Text>
+            <View style={styles.roleRow}>
+                {ROLES.map(item => (
+                    <TouchableOpacity
+                        key={item.value}
+                        accessibilityRole="button"
+                        accessibilityState={{ selected: rol === item.value }}
+                        style={[styles.roleChip, rol === item.value && styles.roleChipActive]}
+                        onPress={() => setRol(item.value)}
+                    >
+                        <MaterialCommunityIcons name={item.icon} size={22} color={rol === item.value ? '#FFFFFF' : '#3368A0'} />
+                        <Text style={[styles.roleText, rol === item.value && styles.roleTextActive]}>{item.label}</Text>
+                    </TouchableOpacity>
+                ))}
+            </View>
 
             <View style={styles.inputContainer}>
                 <MaterialCommunityIcons name="account" size={20} color="#66A3BF" style={styles.icon} />
-                <TextInput 
-                    style={styles.input} 
-                    placeholder="Nombre de usuario" 
+                <TextInput
+                    style={styles.input}
+                    placeholder="Nombre de usuario"
                     placeholderTextColor="#999"
                     value={username}
                     onChangeText={setUsername}
@@ -43,9 +80,9 @@ const RegisterScreen = () => {
 
             <View style={styles.inputContainer}>
                 <MaterialCommunityIcons name="email" size={20} color="#66A3BF" style={styles.icon} />
-                <TextInput 
-                    style={styles.input} 
-                    placeholder="Correo electrónico" 
+                <TextInput
+                    style={styles.input}
+                    placeholder="Correo electrónico"
                     placeholderTextColor="#999"
                     keyboardType="email-address"
                     autoCapitalize="none"
@@ -56,9 +93,9 @@ const RegisterScreen = () => {
 
             <View style={styles.inputContainer}>
                 <MaterialCommunityIcons name="lock" size={20} color="#66A3BF" style={styles.icon} />
-                <TextInput 
-                    style={styles.input} 
-                    placeholder="Contraseña" 
+                <TextInput
+                    style={styles.input}
+                    placeholder="Contraseña"
                     placeholderTextColor="#999"
                     secureTextEntry={!showPassword}
                     autoCorrect={false}
@@ -79,6 +116,18 @@ const RegisterScreen = () => {
                 </TouchableOpacity>
             </View>
 
+            {rol === 'medico' && (
+                <View style={styles.inputContainer}>
+                    <MaterialCommunityIcons name="medical-bag" size={20} color="#66A3BF" style={styles.icon} />
+                    <Picker style={{ flex: 1 }} selectedValue={specialty} onValueChange={setSpecialty}>
+                        <Picker.Item label="Selecciona tu especialidad" value="" />
+                        {specialties.map(item => (
+                            <Picker.Item key={item.id_especialidad} label={item.nombre_especialidad} value={String(item.id_especialidad)} />
+                        ))}
+                    </Picker>
+                </View>
+            )}
+
             <TouchableOpacity style={styles.button} disabled={busy} onPress={handleRegister}>
                 <Text style={styles.buttonText}>{busy ? 'Creando cuenta…' : 'Registrarse'}</Text>
             </TouchableOpacity>
@@ -95,7 +144,12 @@ const RegisterScreen = () => {
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#F2EFE7', justifyContent: 'center', alignItems: 'center', padding: 24 },
     title: { fontSize: 32, fontWeight: 'bold', color: '#3368A0', marginBottom: 8 },
-    subtitle: { fontSize: 16, color: 'gray', marginBottom: 32 },
+    subtitle: { fontSize: 16, color: 'gray', marginBottom: 24 },
+    roleRow: { flexDirection: 'row', gap: 8, width: '100%', marginBottom: 16 },
+    roleChip: { flex: 1, alignItems: 'center', paddingVertical: 10, borderRadius: 12, borderWidth: 1.5, borderColor: '#66A3BF', backgroundColor: '#FFFFFF' },
+    roleChipActive: { backgroundColor: '#3368A0', borderColor: '#3368A0' },
+    roleText: { marginTop: 4, fontSize: 12, fontWeight: '600', color: '#3368A0' },
+    roleTextActive: { color: '#FFFFFF' },
     inputContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF', borderWidth: 1.5, borderColor: '#66A3BF', borderRadius: 12, width: '100%', height: 55, paddingHorizontal: 15, marginBottom: 16 },
     icon: { marginRight: 10 },
     input: { flex: 1, color: '#333', fontSize: 16 },
@@ -106,4 +160,4 @@ const styles = StyleSheet.create({
     loginLinkBold: { color: '#3368A0', fontWeight: 'bold' }
 });
 
-export default RegisterScreen; 
+export default RegisterScreen;

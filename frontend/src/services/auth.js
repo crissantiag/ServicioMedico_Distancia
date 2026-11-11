@@ -29,10 +29,22 @@ export async function login(email, password) {
   clearSession();
   const credentials = await firebase('signInWithPassword', { email: email.trim(), password, returnSecureToken: true });
   setSession(credentials);
-  try { return (await api.get('auth/me')).data; }
-  catch (error) { clearSession(); throw error; }
+  try {
+    const { data } = await api.get('auth/me');
+    // Cuenta creada en Firebase cuyo registro no llegó a completarse: queda como paciente.
+    if (data.registro_completo === false) return (await api.post('auth/registro', { rol: 'paciente' })).data;
+    return data;
+  } catch (error) { clearSession(); throw error; }
 }
-export async function register(name, email, password) {
+
+// Especialidades para el formulario de registro (ruta pública, aún no hay sesión).
+export async function registrationSpecialties() {
+  const base = process.env.EXPO_PUBLIC_API_URL?.replace(/\/$/, '');
+  if (!base) throw new Error('Configura EXPO_PUBLIC_API_URL en .env.local.');
+  return (await requestJson(`${base}/registro/especialidades`, { headers: { Accept: 'application/json' } })).data;
+}
+
+export async function register(name, email, password, extra = { rol: 'paciente' }) {
   clearSession();
   const credentials = await firebase('signUp', { email: email.trim(), password, returnSecureToken: true });
   setSession(credentials);
@@ -40,7 +52,7 @@ export async function register(name, email, password) {
     const updated = await firebase('update', { idToken: credentials.idToken, displayName: name.trim(), returnSecureToken: true });
     if (updated.idToken) setSession({ ...credentials, ...updated });
     await api.get('auth/me');
-    return (await api.put('auth/me', { nombre_completo: name.trim() })).data;
+    return (await api.post('auth/registro', { ...extra, nombre_completo: name.trim() })).data;
   } catch (error) {
     clearSession();
     throw new Error(`La cuenta se creó en Firebase, pero falta completar el perfil: ${error.message} Vuelve a iniciar sesión; no repitas el registro.`);
