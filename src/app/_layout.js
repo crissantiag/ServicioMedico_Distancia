@@ -13,6 +13,7 @@ function Routes() {
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="medicos" />
       <Stack.Screen name="ajustes" />
+      <Stack.Screen name="mapa-centros" />
       <Stack.Screen name="historial" />
       <Stack.Screen name="citas/[id]" />
       <Stack.Screen name="citas/crear" />
