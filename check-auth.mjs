@@ -57,7 +57,7 @@ assert.ok(requests.some(r=>r.url.endsWith('/auth/me')&&r.options.headers.Authori
 requests=[];
 await auth.register('Paciente prueba','paciente@test.local','not-a-real-password');
 assert.ok(requests.some(r=>r.url.includes('accounts:signUp')));
-assert.ok(requests.some(r=>r.options.method==='PUT'&&JSON.parse(r.options.body).nombre_completo==='Paciente prueba'));
+assert.ok(requests.some(r=>r.options.method==='POST'&&r.url.endsWith('/auth/registro')&&JSON.parse(r.options.body).nombre_completo==='Paciente prueba'&&JSON.parse(r.options.body).rol==='paciente'));
 assert.ok(requests.every(r=>!r.options.body||!r.url.startsWith('http://test.local')||!r.options.body.includes('not-a-real-password')));
 auth.logout();await assert.rejects(session.getToken(),/Debes iniciar/);
 console.log('OK: login, registro y perfil con respuestas simuladas; la contraseña nunca se envía a Laravel.');

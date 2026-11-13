@@ -31,6 +31,14 @@ const HomeScreen = () => {
                 Bienvenido, {user?.nombre_completo || 'Paciente'}
             </Text>
 
+            {user?.rol === 'administrador' ? <TouchableOpacity style={styles.card} onPress={() => router.push('/admin-medicos')}>
+                <View style={styles.iconContainer}><MaterialCommunityIcons name="doctor" size={36} color="#3368A0" /></View>
+                <View style={styles.textContainer}>
+                    <Text style={styles.cardTitle}>Administrar médicos</Text>
+                    <Text style={styles.cardSubtitle}>Crear, editar y eliminar perfiles médicos</Text>
+                </View>
+            </TouchableOpacity> : null}
+
             <TouchableOpacity style={styles.card} onPress={() => router.push('/citas/crear')}>
                 <View style={styles.iconContainer}>
                     <MaterialCommunityIcons name="calendar-clock" size={36} color="#3368A0" />

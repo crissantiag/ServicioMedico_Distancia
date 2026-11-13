@@ -133,3 +133,15 @@ El historial pide diez citas por página; Anterior y Ver siguientes navegan sin 
 - Desde Safari o Chrome del teléfono abre `http://IP_DE_TU_PC:8000/api/especialidades`. Una respuesta JSON (incluso 401) confirma que llega a Laravel. Si no abre, revisa IP, misma red y que Laravel se ejecute con `--host=0.0.0.0 --port=8000`. Revisa también si PHP tiene permiso para recibir conexiones en la red privada del equipo.
 - Después de cambiar `.env.local`, detén Expo y ejecuta `npx expo start --clear`; vuelve a abrir la app. El túnel de Expo solo conecta con Expo, no expone automáticamente Laravel.
 - Cada compañero usa su propia IP; la IP de Alex no les sirve si Laravel corre en otra computadora. No vuelvas a registrar ni borres una cuenta para resolver un fallo de red.
+
+## Administrar médicos desde el móvil
+
+En Inicio, una cuenta con rol administrador verá Administrar médicos. Permite listar diez registros por página, crear, abrir y editar un perfil y eliminarlo con confirmación. Pacientes y médicos mantienen sus pantallas habituales; no pueden acceder al mantenimiento.
+
+Campos: nombre completo y especialidad son obligatorios; disponibilidad y centros médicos son opcionales. Puedes agregar varios centros y quitar una asignación; los cambios se aplican al guardar. El idioma no se pide: los perfiles nuevos usan Español y los existentes conservan el suyo. Si la API devuelve errores, lo escrito se conserva para corregirlo. La eliminación se bloquea cuando hay citas, centros asignados u otros registros relacionados; no borra estos datos en cascada.
+
+Crear un perfil médico aquí no crea una cuenta Firebase. Al editar un perfil ya vinculado, se conserva su cuenta. Usa una cuenta administradora existente en la base local para probar el módulo; el registro público no ofrece ese rol.
+
+Rutas nuevas: /admin-medicos, /admin-medicos/crear y /admin-medicos/[id]. Código en MedicosAdminScreen.js, MedicoAdminFormScreen.js y services/medicosAdmin.js. El servicio reutiliza api.js y sus tokens.
+
+El registro por roles publicado por el equipo requiere el backend actualizado y su migración registro_completo. No ejecutar migrate:fresh. Para verificar el CRUD sin usar datos reales: crear un perfil de ejemplo sin cuenta vinculada, editar disponibilidad, volver al listado y eliminar ese mismo perfil.

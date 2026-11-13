@@ -9,6 +9,11 @@ function Routes() {
       <Stack.Screen name="index" />
       <Stack.Screen name="register" />
     </Stack.Protected>
+    <Stack.Protected guard={user?.rol === 'administrador'}>
+      <Stack.Screen name="admin-medicos/index" />
+      <Stack.Screen name="admin-medicos/crear" />
+      <Stack.Screen name="admin-medicos/[id]" />
+    </Stack.Protected>
     <Stack.Protected guard={!!user}>
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="medicos" />
