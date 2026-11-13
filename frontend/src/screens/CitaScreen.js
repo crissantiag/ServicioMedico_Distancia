@@ -25,30 +25,25 @@ export default function CitaScreen() {
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
 
+  const [reload, setReload] = useState(0);
+  const medicoInicial = params?.id_medico;
   useEffect(() => {
-    cargarMedicos();
-  }, []);
-
-  const cargarMedicos = async () => {
-    try {
-      const response = await api.get('medicos');
-      const listaMedicos = Array.isArray(response.data) 
-        ? response.data 
-        : (response.data?.data || response || []);
-
-      setMedicos(listaMedicos);
-
-      // Ahora params ya estará definido y no dará ReferenceError
-      if (params?.id_medico) {
-        setMedicoSeleccionado(String(params.id_medico));
+    let active = true;
+    const cargarMedicos = async () => {
+      try {
+        const response = await api.get('medicos');
+        if (!active) return;
+        setMedicos(response.data);
+        if (medicoInicial) setMedicoSeleccionado(String(medicoInicial));
+      } catch (error) {
+        if (active) Alert.alert('Error', error.message);
+      } finally {
+        if (active) setLoadingData(false);
       }
-    } catch (error) {
-      console.error('Error al cargar médicos:', error);
-      Alert.alert('Error', 'No se pudo cargar la lista de médicos disponibles.');
-    } finally {
-      setLoadingData(false);
-    }
-  };
+    };
+    void Promise.resolve().then(cargarMedicos);
+    return () => { active = false; };
+  }, [medicoInicial, reload]);
 
   const handleDateChange = (event, selectedDate) => {
     setShowDatePicker(Platform.OS === 'ios');
@@ -115,7 +110,7 @@ export default function CitaScreen() {
   return (
     <AccountPage title="Agendar cita">
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        <Feedback loading={loadingData} error="" retry={cargarMedicos} />
+        <Feedback loading={loadingData} error="" retry={() => setReload(value => value + 1)} />
 
         {!loadingData ? (
           <View style={styles.card}>

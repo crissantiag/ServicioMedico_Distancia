@@ -16,9 +16,12 @@ export async function apiRequest(path, { method = 'GET', params, body } = {}) {
       headers: { Accept: 'application/json', 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
     });
-    // if (result.success !== true) throw new Error(result.message || 'La API no pudo completar la solicitud.');
+    if (result.success !== true) throw new Error(result.message || 'La API no pudo completar la solicitud.');
     return result;
   } catch (error) {
+    if (error.code === 'NETWORK_ERROR') {
+      error.message = `No se pudo conectar con la API Laravel en ${base}. Revisa EXPO_PUBLIC_API_URL en .env.local y que Laravel esté encendido en el puerto indicado. En teléfono físico usa la IPv4 de tu computadora, no 10.0.2.2 ni localhost.`;
+    }
     if (error.status === 401) {
       clearSession();
       throw new Error('Tu acceso ya no es válido. Vuelve a ingresar.');

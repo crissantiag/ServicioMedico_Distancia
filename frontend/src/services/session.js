@@ -33,11 +33,17 @@ export async function requestJson(url, options = {}) {
       error.errors = body?.errors;
       throw error;
     }
-    if (!body) throw new Error('El servicio devolvió una respuesta inesperada.');
+    if (!body || typeof body !== 'object') {
+      const error = new Error('El servidor respondió, pero no devolvió JSON válido. Revisa la URL y el puerto.');
+      error.code = 'INVALID_RESPONSE';
+      throw error;
+    }
     return body;
   } catch (error) {
-    if (error.status) throw error;
-    throw new Error('No se pudo conectar. Revisa tu conexión y la dirección de la API.');
+    if (error.status || error.code === 'INVALID_RESPONSE') throw error;
+    const failure = new Error('No se pudo conectar. Revisa tu conexión.');
+    failure.code = 'NETWORK_ERROR';
+    throw failure;
   } finally {
     clearTimeout(timeout);
   }
@@ -57,6 +63,7 @@ export async function getToken() {
       setSession(data);
       return session.token;
     }).catch(error => {
+      if (error.code === 'NETWORK_ERROR') error.message = 'No se pudo conectar con Firebase para renovar la sesión. Revisa el acceso a Internet e intenta nuevamente.';
       if ((error.status === 400 || error.status === 401) && generation === version) clearSession();
       throw error;
     }).finally(() => { renewal = null; });

@@ -20,6 +20,7 @@ async function firebase(action, body) {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
     });
   } catch (error) {
+    if (error.code === 'NETWORK_ERROR') throw new Error('No se pudo conectar con Firebase. Revisa el acceso a Internet del dispositivo e intenta nuevamente.');
     const code = error.message.split(' : ')[0];
     throw new Error(messages[code] || (code === 'WEAK_PASSWORD' ? 'Usa una contraseña de al menos 6 caracteres.' :
       error.status ? 'No se pudo iniciar sesión en Firebase. Intenta nuevamente.' : error.message));

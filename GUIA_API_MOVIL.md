@@ -16,7 +16,7 @@ Si el emulador y Laravel se ejecutan en tu computadora, **no necesitas configura
 
 Si antes probaste con teléfono y creaste .env.local, cambia su línea a `EXPO_PUBLIC_API_URL=http://10.0.2.2:8000/api` para volver al emulador.
 
-### B. Voy a usar mi teléfono con Expo Go
+### B. Voy a usar mi teléfono Android o iPhone con Expo Go
 
 El teléfono necesita conocer la dirección de la computadora donde corre Laravel:
 
@@ -125,3 +125,11 @@ php artisan citas:semilla tu-correo-registrado@ejemplo.com
 El primer comando prepara perfiles ficticios del equipo con doce citas cada uno. No crea sus cuentas de Firebase. El segundo agrega doce citas a un perfil que ya inició sesión en esa base, para verlas desde la app. No borra citas existentes y puede repetirse sin duplicar las citas de semilla. No ejecutar migrate:fresh para probar esto.
 
 El historial pide diez citas por página; Anterior y Ver siguientes navegan sin cargar todas las citas de una vez. El contador indica el rango y el total.
+
+## Si aparece un error de conexión al ingresar
+
+- **Firebase:** el dispositivo necesita Internet. No se arregla cambiando usuarios en MySQL.
+- **API Laravel:** revisa la dirección que muestra el aviso. En un teléfono físico, Android o iPhone, `.env.local` debe tener la IPv4 de **la computadora que ejecuta Laravel**, con `:8000/api`. `10.0.2.2` sirve para el emulador Android; `localhost` en un teléfono apunta al propio teléfono.
+- Desde Safari o Chrome del teléfono abre `http://IP_DE_TU_PC:8000/api/especialidades`. Una respuesta JSON (incluso 401) confirma que llega a Laravel. Si no abre, revisa IP, misma red y que Laravel se ejecute con `--host=0.0.0.0 --port=8000`. Revisa también si PHP tiene permiso para recibir conexiones en la red privada del equipo.
+- Después de cambiar `.env.local`, detén Expo y ejecuta `npx expo start --clear`; vuelve a abrir la app. El túnel de Expo solo conecta con Expo, no expone automáticamente Laravel.
+- Cada compañero usa su propia IP; la IP de Alex no les sirve si Laravel corre en otra computadora. No vuelvas a registrar ni borres una cuenta para resolver un fallo de red.
