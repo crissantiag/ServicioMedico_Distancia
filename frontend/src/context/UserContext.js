@@ -7,7 +7,7 @@ export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   useEffect(() => subscribeLogout(() => setUser(null)), []);
   const signIn = async (email, password) => setUser(await login(email, password));
-  const signUp = async (name, email, password) => setUser(await register(name, email, password));
+  const signUp = async (name, email, password, extra) => setUser(await register(name, email, password, extra));
   const updateUser = data => setUser(current =>
     current && current.id_usuario === data.id_usuario ? { ...current, ...data } : current,
   );

@@ -64,14 +64,29 @@ export default function CitaScreen() {
   };
 
   const handleGuardarCita = async () => {
+    // 1. Validar que todos los campos estén completos
     if (!medicoSeleccionado) {
-      Alert.alert('Atención', 'Por favor seleccione un médico.');
+      Alert.alert('Campos incompletos', 'Por favor, selecciona un médico para la cita.');
+      return;
+    }
+
+    if (!motivoConsulta.trim()) {
+      Alert.alert('Campos incompletos', 'Por favor, describe el motivo de la consulta.');
+      return;
+    }
+
+    // 2. Validar que la fecha y hora sean futuras (en español)
+    const ahora = new Date();
+    if (fecha <= ahora) {
+      Alert.alert(
+        'Fecha u hora inválida',
+        'La fecha y hora de la cita deben ser posteriores al momento actual.'
+      );
       return;
     }
 
     setLoading(true);
     try {
-      // Formato YYYY-MM-DD HH:mm:ss requerido por Laravel (after:now)
       const year = fecha.getFullYear();
       const month = String(fecha.getMonth() + 1).padStart(2, '0');
       const day = String(fecha.getDate()).padStart(2, '0');
@@ -84,7 +99,7 @@ export default function CitaScreen() {
       const payload = {
         id_medico: parseInt(medicoSeleccionado, 10),
         fecha_hora: fechaFormateada,
-        motivo_consulta: motivoConsulta.trim() || null,
+        motivo_consulta: motivoConsulta.trim(),
       };
 
       await api.post('citas', payload);
@@ -93,11 +108,16 @@ export default function CitaScreen() {
         { text: 'OK', onPress: () => router.back() }
       ]);
     } catch (error) {
-      // Si la API devuelve un error 422 (Día o hora no permitida para ese médico) o 409 (Ocupado)
       if (error.status === 409 || error.response?.status === 409) {
-        Alert.alert('Horario Ocupado', 'El médico ya tiene una cita agendada en ese horario.');
+        Alert.alert('Horario ocupado', 'El médico ya tiene una cita agendada en ese horario.');
       } else {
-        const mensaje = error.message || error.response?.data?.message || 'No se pudo agendar la cita.';
+        let mensaje = error.message || error.response?.data?.message || 'No se pudo agendar la cita.';
+        
+        // Traducción de respaldo por si Laravel devuelve la validación en inglés
+        if (mensaje.toLowerCase().includes('must be a date after now')) {
+          mensaje = 'La fecha y hora de la cita deben ser posteriores al momento actual.';
+        }
+
         Alert.alert('Horario no disponible', mensaje);
       }
     } finally {
@@ -199,7 +219,7 @@ export default function CitaScreen() {
             )}
 
             {/* Motivo */}
-            <Text style={styles.label}>Motivo de la consulta</Text>
+            <Text style={styles.label}>Motivo de la consulta *</Text>
             <TextInput
               style={styles.inputArea}
               placeholder="Describa brevemente el motivo..."
