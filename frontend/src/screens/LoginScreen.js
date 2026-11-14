@@ -5,187 +5,209 @@ import { router } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const LoginScreen = () => {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [showPassword, setShowPassword] = useState(false);
-    const [isFocused1, setIsFocused1] = useState(false);
-    const [isFocused2, setIsFocused2] = useState(false);
-    
-    const { signIn } = useContext(UserContext);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [isFocused1, setIsFocused1] = useState(false);
+  const [isFocused2, setIsFocused2] = useState(false);
 
-    const [busy, setBusy] = useState(false);
-    const handleLogin = async () => {
-        if (busy) return;
-        if (!username.trim() || !password.trim()) {
-            Alert.alert("Campos incompletos", "Por favor, completa todos los campos.");
-            return;
-        }
+  const { signIn } = useContext(UserContext);
 
-        setBusy(true);
-        try { await signIn(username, password); }
-        catch (error) { Alert.alert('No se pudo ingresar', error.message); }
-        finally { setBusy(false); } 
-    };
+  const [busy, setBusy] = useState(false);
+  const handleLogin = async () => {
+    // 1. Validar campos vacíos
+    if (!email.trim() || !password) {
+      Alert.alert('Campos incompletos', 'Por favor, ingresa tu correo electrónico y contraseña.');
+      return;
+    }
 
-    return (
-        <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-            
-            <View style={styles.logoContainer}>
-                <Image 
-                    source={require('../../../assets/logo.png')} 
-                    style={styles.logo}
-                    resizeMode="contain"
-                />
-            </View>
-            
-            <Text style={styles.title}>Iniciar Sesión</Text>
+    // 2. Validar formato de correo electrónico
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      Alert.alert('Correo inválido', 'Por favor, introduce un formato de correo válido.');
+      return;
+    }
 
-            <View style={[
-                styles.inputContainer, 
-                { borderWidth: isFocused1 ? 2.5 : 1.5, borderColor: isFocused1 ? '#3368A0' : '#66A3BF' }
-            ]}>
-                <MaterialCommunityIcons name="account" size={22} color="#66A3BF" style={styles.icon} />
-                <TextInput
-                    style={styles.input}
-                    onChangeText={setUsername}
-                    value={username}
-                    placeholder="Correo electrónico"
-                    keyboardType="email-address"
-                    placeholderTextColor="#888"
-                    autoCapitalize="none"
-                    onFocus={() => setIsFocused1(true)}
-                    onBlur={() => setIsFocused1(false)}
-                />
-            </View>
+    try {
+      // 3. Autenticación con Firebase
+      await signInWithEmailAndPassword(auth, email.trim(), password);
 
-            <View style={[
-                styles.inputContainer, 
-                { borderWidth: isFocused2 ? 2.5 : 1.5, borderColor: isFocused2 ? '#3368A0' : '#66A3BF' }
-            ]}>
-                <MaterialCommunityIcons name="lock" size={22} color="#66A3BF" style={styles.icon} />
-                <TextInput
-                    style={styles.input}
-                    onChangeText={setPassword}
-                    value={password}
-                    placeholder="Contraseña"
-                    placeholderTextColor="#888"
-                    secureTextEntry={!showPassword}
-                    autoCorrect={false}
-                    autoCapitalize="none"
-                    onFocus={() => setIsFocused2(true)}
-                    onBlur={() => setIsFocused2(false)}
-                />
-                <TouchableOpacity
-                    accessibilityRole="button"
-                    accessibilityLabel={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-                    onPress={() => setShowPassword(value => !value)}
-                    style={{ minWidth: 48, minHeight: 44, alignItems: 'center', justifyContent: 'center' }}
-                >
-                    <MaterialCommunityIcons
-                        name={showPassword ? 'eye-off-outline' : 'eye-outline'}
-                        size={24}
-                        color="#3368A0"
-                    />
-                </TouchableOpacity>
-            </View>
+      // Si ya tenías una navegación o guardado en contexto/AsyncStorage aquí, déjalo igual:
+      // navigation.replace('Home'); (o la ruta que ya usas)
+    } catch (error) {
+      let mensaje = 'No se pudo iniciar sesión. Intenta nuevamente.';
+      if (
+        error.code === 'auth/user-not-found' ||
+        error.code === 'auth/wrong-password' ||
+        error.code === 'auth/invalid-credential'
+      ) {
+        mensaje = 'El correo o la contraseña son incorrectos.';
+      } else if (error.code === 'auth/too-many-requests') {
+        mensaje = 'Demasiados intentos fallidos. Intenta más tarde.';
+      }
+      Alert.alert('Error de acceso', mensaje);
+    }
+  };
 
-            <TouchableOpacity style={styles.button} disabled={busy} onPress={handleLogin} activeOpacity={0.8}>
-                <Text style={styles.buttonText}>{busy ? 'Ingresando…' : 'Ingresar'}</Text>
-            </TouchableOpacity>
+  return (
+    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
 
-            <TouchableOpacity style={styles.registerLink} onPress={() => router.push('/register')}> 
-                <Text style={styles.registerLinkText}>
-                    ¿No tienes cuenta? <Text style={styles.registerLinkBold}>Regístrate aquí</Text>
-                </Text> 
-            </TouchableOpacity>
-        </ScrollView>
-    );
+      <View style={styles.logoContainer}>
+        <Image
+          source={require('../../../assets/logo.png')}
+          style={styles.logo}
+          resizeMode="contain"
+        />
+      </View>
+
+      <Text style={styles.title}>Iniciar Sesión</Text>
+
+      <View style={[
+        styles.inputContainer,
+        { borderWidth: isFocused1 ? 2.5 : 1.5, borderColor: isFocused1 ? '#3368A0' : '#66A3BF' }
+      ]}>
+        <MaterialCommunityIcons name="account" size={22} color="#66A3BF" style={styles.icon} />
+        <TextInput
+          style={styles.input}
+          onChangeText={setUsername}
+          value={username}
+          placeholder="Correo electrónico"
+          keyboardType="email-address"
+          placeholderTextColor="#888"
+          autoCapitalize="none"
+          onFocus={() => setIsFocused1(true)}
+          onBlur={() => setIsFocused1(false)}
+        />
+      </View>
+
+      <View style={[
+        styles.inputContainer,
+        { borderWidth: isFocused2 ? 2.5 : 1.5, borderColor: isFocused2 ? '#3368A0' : '#66A3BF' }
+      ]}>
+        <MaterialCommunityIcons name="lock" size={22} color="#66A3BF" style={styles.icon} />
+        <TextInput
+          style={styles.input}
+          onChangeText={setPassword}
+          value={password}
+          placeholder="Contraseña"
+          placeholderTextColor="#888"
+          secureTextEntry={!showPassword}
+          autoCorrect={false}
+          autoCapitalize="none"
+          onFocus={() => setIsFocused2(true)}
+          onBlur={() => setIsFocused2(false)}
+        />
+        <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+          onPress={() => setShowPassword(value => !value)}
+          style={{ minWidth: 48, minHeight: 44, alignItems: 'center', justifyContent: 'center' }}
+        >
+          <MaterialCommunityIcons
+            name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+            size={24}
+            color="#3368A0"
+          />
+        </TouchableOpacity>
+      </View>
+
+      <TouchableOpacity style={styles.button} disabled={busy} onPress={handleLogin} activeOpacity={0.8}>
+        <Text style={styles.buttonText}>{busy ? 'Ingresando…' : 'Ingresar'}</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.registerLink} onPress={() => router.push('/register')}>
+        <Text style={styles.registerLinkText}>
+          ¿No tienes cuenta? <Text style={styles.registerLinkBold}>Regístrate aquí</Text>
+        </Text>
+      </TouchableOpacity>
+    </ScrollView>
+  );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#F2EFE7', 
-    },
-    contentContainer: {
-        padding: 24,
-        paddingTop: 100,
-        alignItems: 'center',
-    },
-    title: {
-        fontSize: 32,
-        marginVertical: 25,
-        textAlign: 'center',
-        fontWeight: 'bold',
-        color: '#3368A0', 
-    },
-    logoContainer: {
-        width: 140,
-        height: 140,
-        borderRadius: 70,       
-        backgroundColor: '#FFFFFF', 
-        justifyContent: 'center',
-        alignItems: 'center',
-        shadowColor: '#3368A0',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 5,
-        elevation: 3,
-    },
-    logo: {
-        width: 100,
-        height: 100,
-    },
-    inputContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#FFFFFF', 
-        borderRadius: 12,
-        width: '100%',
-        height: 55,
-        paddingHorizontal: 16,
-        marginVertical: 10,
-    },
-    icon: {
-        marginRight: 10,
-    },
-    input: {
-        flex: 1,
-        height: '100%',
-        fontSize: 16,
-        color: '#1b1b1b',
-    },
-    button: {
-        width: '100%',
-        backgroundColor: '#3368A0', 
-        borderRadius: 12,
-        height: 55,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginTop: 20,
-        shadowColor: '#3368A0',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.15,
-        shadowRadius: 5,
-        elevation: 4,
-    },
-    buttonText: {
-        color: '#FFFFFF', 
-        fontWeight: 'bold',
-        fontSize: 16,
-    },
-    registerLink: {
-        marginTop: 25,
-        padding: 10,
-    },
-    registerLinkText: {
-        color: 'gray',
-        fontSize: 15,
-    },
-    registerLinkBold: {
-        color: '#3368A0',
-        fontWeight: 'bold',
-    },
+  container: {
+    flex: 1,
+    backgroundColor: '#F2EFE7',
+  },
+  contentContainer: {
+    padding: 24,
+    paddingTop: 100,
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 32,
+    marginVertical: 25,
+    textAlign: 'center',
+    fontWeight: 'bold',
+    color: '#3368A0',
+  },
+  logoContainer: {
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#3368A0',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  logo: {
+    width: 100,
+    height: 100,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    width: '100%',
+    height: 55,
+    paddingHorizontal: 16,
+    marginVertical: 10,
+  },
+  icon: {
+    marginRight: 10,
+  },
+  input: {
+    flex: 1,
+    height: '100%',
+    fontSize: 16,
+    color: '#1b1b1b',
+  },
+  button: {
+    width: '100%',
+    backgroundColor: '#3368A0',
+    borderRadius: 12,
+    height: 55,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
+    shadowColor: '#3368A0',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 5,
+    elevation: 4,
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  registerLink: {
+    marginTop: 25,
+    padding: 10,
+  },
+  registerLinkText: {
+    color: 'gray',
+    fontSize: 15,
+  },
+  registerLinkBold: {
+    color: '#3368A0',
+    fontWeight: 'bold',
+  },
 });
 
 export default LoginScreen;
