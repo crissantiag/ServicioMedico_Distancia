@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { Stack } from 'expo-router';
 import { UserContext, UserProvider } from '../../frontend/src/context/UserContext';
+import { NotificacionesProvider } from '../../frontend/src/context/NotificacionesContext';
 
 function Routes() {
   const { user } = useContext(UserContext);
@@ -13,6 +14,9 @@ function Routes() {
       <Stack.Screen name="admin-medicos/index" />
       <Stack.Screen name="admin-medicos/crear" />
       <Stack.Screen name="admin-medicos/[id]" />
+    </Stack.Protected>
+    <Stack.Protected guard={user?.rol === 'medico' || user?.rol === 'administrador'}>
+      <Stack.Screen name="enviar-notificacion" />
     </Stack.Protected>
     <Stack.Protected guard={!!user}>
       <Stack.Screen name="(tabs)" />
@@ -30,5 +34,5 @@ function Routes() {
   </Stack>;
 }
 export default function Layout() {
-  return <UserProvider><Routes /></UserProvider>;
+  return <UserProvider><NotificacionesProvider><Routes /></NotificacionesProvider></UserProvider>;
 }

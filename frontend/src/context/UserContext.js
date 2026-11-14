@@ -1,6 +1,7 @@
 import React, { createContext, useEffect, useState } from 'react';
 import { login, register, logout } from '../services/auth';
 import { subscribeLogout } from '../services/session';
+import { quitarDispositivoPush } from '../services/push';   // NUEVO
 
 export const UserContext = createContext();
 export const UserProvider = ({ children }) => {
@@ -8,9 +9,14 @@ export const UserProvider = ({ children }) => {
   useEffect(() => subscribeLogout(() => setUser(null)), []);
   const signIn = async (email, password) => setUser(await login(email, password));
   const signUp = async (name, email, password, extra) => setUser(await register(name, email, password, extra));
+
+  const signOut = async () => {
+    await quitarDispositivoPush();
+    logout();
+  };
   const updateUser = data => setUser(current =>
     current && current.id_usuario === data.id_usuario ? { ...current, ...data } : current,
   );
-  return <UserContext.Provider value={{ user, signIn, signUp, signOut: logout, updateUser }}>{children}</UserContext.Provider>;
+  return <UserContext.Provider value={{ user, signIn, signUp, signOut, updateUser }}>{children}</UserContext.Provider>;
 };
 export default UserContext;

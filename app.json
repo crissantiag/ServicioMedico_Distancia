@@ -29,7 +29,8 @@
       "expo-status-bar",
       "expo-asset",
       "expo-router",
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      ["expo-notifications", { "color": "#3368A0" }]
     ],
     "scheme": "serviciosmedicos"
   }
