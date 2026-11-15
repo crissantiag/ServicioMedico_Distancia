@@ -15,5 +15,6 @@ export const notificaciones = {
 export function rutaDeNotificacion(datos) {
   if (datos?.id_receta) return `/recetas/${datos.id_receta}`;
   if (datos?.id_cita) return `/citas/${datos.id_cita}`;
+  if (datos?.id_publicacion) return `/foro/${datos.id_publicacion}`;
   return null;
 }

@@ -28,6 +28,9 @@ function Routes() {
       <Stack.Screen name="chat/[id]" />
       <Stack.Screen name="citas/[id]" />
       <Stack.Screen name="citas/crear" />
+      <Stack.Screen name="foro/index" />
+      <Stack.Screen name="foro/[id]" />
+      <Stack.Screen name="foro/crear" />
       <Stack.Screen name="recetas/index" />
       <Stack.Screen name="recetas/[id]" />
       <Stack.Screen name="recetas/crear" />

@@ -37,6 +37,7 @@ const ICONOS = {
   recordatorio_cita: 'alarm',
   receta: 'pill',
   chat: 'message-text',
+  foro: 'forum',
   aviso: 'bullhorn',
 };
 

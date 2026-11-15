@@ -125,7 +125,7 @@ export default function ChatScreen() {
   };
 
   return <AccountPage title={String(nombre || 'Chat')}>
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding" keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}>
       <FlatList
         ref={list}
         style={{ flex: 1 }}

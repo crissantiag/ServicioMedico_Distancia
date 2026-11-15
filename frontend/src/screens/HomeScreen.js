@@ -81,6 +81,17 @@ const HomeScreen = () => {
                 </View>
             </TouchableOpacity>
 
+            {/* Tarjeta Foro de salud */}
+            <TouchableOpacity style={styles.card} onPress={() => router.push('/foro')}>
+                <View style={styles.iconContainer}>
+                    <MaterialCommunityIcons name="forum-outline" size={36} color="#3368A0" />
+                </View>
+                <View style={styles.textContainer}>
+                    <Text style={styles.cardTitle}>Foro de salud</Text>
+                    <Text style={styles.cardSubtitle}>Comparte experiencias y recibe apoyo de otros usuarios</Text>
+                </View>
+            </TouchableOpacity>
+
             {/* Tarjeta Recetas */}
             <TouchableOpacity style={styles.card} onPress={() => router.push('/recetas')}>
                 <View style={styles.iconContainer}>
