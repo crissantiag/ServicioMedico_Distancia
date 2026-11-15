@@ -28,19 +28,14 @@ export default function CitaScreen() {
 
   const [reload, setReload] = useState(0);
   const medicoInicial = params?.id_medico;
+
   useEffect(() => {
     let active = true;
-    const handleCrearCita = () => {
-      if (!selectedMedico || !fecha || !motivo.trim()) {
-        Alert.alert('Campos incompletos', 'Por favor, completa todos los campos obligatorios antes de continuar.');
-        return;
-      }
-    };
     const cargarMedicos = async () => {
       try {
         const response = await api.get('medicos');
         if (!active) return;
-        setMedicos(response.data);
+        setMedicos(response.data || []);
         if (medicoInicial) setMedicoSeleccionado(String(medicoInicial));
       } catch (error) {
         if (active) Alert.alert('Error', error.message);
@@ -82,7 +77,7 @@ export default function CitaScreen() {
       return;
     }
 
-    // 2. Validar que la fecha y hora sean futuras (en español)
+    // 2. Validar que la fecha y hora sean futuras
     const ahora = new Date();
     if (fecha <= ahora) {
       Alert.alert(
@@ -111,22 +106,15 @@ export default function CitaScreen() {
 
       await api.post('citas', payload);
 
-      try {
-        const response = await api.post('/citas', citaData);
-        Alert.alert('¡Éxito!', 'Tu cita ha sido programada correctamente.', [
-          { text: 'OK', onPress: () => navigation.goBack() }
-        ]);
-      } catch (error) {
-        const mensaje = error.response?.data?.message || 'Ocurrió un error al conectar con el servidor.';
-        Alert.alert('Error de registro', mensaje);
-      }
+      Alert.alert('¡Éxito!', 'Tu cita ha sido programada correctamente.', [
+        { text: 'OK', onPress: () => router.back() }
+      ]);
     } catch (error) {
       if (error.status === 409 || error.response?.status === 409) {
         Alert.alert('Horario ocupado', 'El médico ya tiene una cita agendada en ese horario.');
       } else {
         let mensaje = error.message || error.response?.data?.message || 'No se pudo agendar la cita.';
 
-        // Traducción de respaldo por si Laravel devuelve la validación en inglés
         if (mensaje.toLowerCase().includes('must be a date after now')) {
           mensaje = 'La fecha y hora de la cita deben ser posteriores al momento actual.';
         }
@@ -195,16 +183,24 @@ export default function CitaScreen() {
             {/* Fecha y hora */}
             <Text style={styles.label}>Fecha y hora de atención *</Text>
             <View style={styles.row}>
-              <TouchableOpacity accessibilityRole="button" accessibilityLabel="Elegir fecha"
-                style={styles.selectorBtn} onPress={() => setShowDatePicker(true)}>
+              <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel="Elegir fecha"
+                style={styles.selectorBtn}
+                onPress={() => setShowDatePicker(true)}
+              >
                 <MaterialCommunityIcons name="calendar" size={20} color="#3368A0" />
                 <Text style={styles.selectorText}>
                   {fecha.toLocaleDateString('es', { day: 'numeric', month: 'short', year: 'numeric' })}
                 </Text>
               </TouchableOpacity>
 
-              <TouchableOpacity accessibilityRole="button" accessibilityLabel="Elegir hora"
-                style={styles.selectorBtn} onPress={() => setShowTimePicker(true)}>
+              <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel="Elegir hora"
+                style={styles.selectorBtn}
+                onPress={() => setShowTimePicker(true)}
+              >
                 <MaterialCommunityIcons name="clock-outline" size={20} color="#3368A0" />
                 <Text style={styles.selectorText}>
                   {fecha.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -254,106 +250,105 @@ export default function CitaScreen() {
   );
 }
 
-const styles = StyleSheet.create(
-  {
-    content: {
-      padding: 20,
-      paddingBottom: 35
-    },
-    card: {
-      backgroundColor: '#FFFFFF',
-      borderColor: '#66A3BF',
-      borderWidth: 1.5,
-      borderRadius: 16,
-      padding: 20,
-      shadowColor: '#3368A0',
-      shadowOffset: { width: 0, height: 6 },
-      shadowOpacity: 0.1,
-      shadowRadius: 6,
-      elevation: 4,
-    },
-    encabezado: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginBottom: 6
-    },
-    iconBox: {
-      width: 60,
-      height: 60,
-      borderRadius: 12,
-      backgroundColor: '#E6F0FA',
-      justifyContent: 'center',
-      alignItems: 'center',
-      marginRight: 16,
-    },
-    cardTitle: {
-      fontSize: 20,
-      fontWeight: 'bold',
-      color: '#3368A0'
-    },
-    cardSubtitle: {
-      fontSize: 14,
-      color: '#66A3BF',
-      marginTop: 2
-    },
-    label: {
-      fontSize: 15,
-      fontWeight: 'bold',
-      color: '#334155',
-      marginTop: 18,
-      marginBottom: 6
-    },
-    pickerBox: {
-      backgroundColor: '#FFFFFF',
-      borderRadius: 10,
-      borderWidth: 1,
-      borderColor: '#94AFC5'
-    },
-    infoBox: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      backgroundColor: '#E6F0FA',
-      padding: 12,
-      borderRadius: 10,
-      marginTop: 10,
-    },
-    infoText: {
-      flex: 1,
-      color: '#24517E',
-      fontSize: 14,
-      lineHeight: 20
-    },
-    row: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      gap: 10
-    },
-    selectorBtn: {
-      flex: 1,
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: 8,
-      backgroundColor: '#FFFFFF',
-      minHeight: 48,
-      borderRadius: 10,
-      borderWidth: 1,
-      borderColor: '#94AFC5',
-    },
-    selectorText: {
-      fontSize: 15,
-      color: '#1E293B'
-    },
-    inputArea: {
-      backgroundColor: '#FFFFFF',
-      color: '#1E293B',
-      borderRadius: 10,
-      borderWidth: 1,
-      borderColor: '#94AFC5',
-      padding: 12,
-      minHeight: 90,
-      textAlignVertical: 'top',
-      fontSize: 16,
-      marginBottom: 6,
-    },
-  });
+const styles = StyleSheet.create({
+  content: {
+    padding: 20,
+    paddingBottom: 35
+  },
+  card: {
+    backgroundColor: '#FFFFFF',
+    borderColor: '#66A3BF',
+    borderWidth: 1.5,
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: '#3368A0',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  encabezado: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6
+  },
+  iconBox: {
+    width: 60,
+    height: 60,
+    borderRadius: 12,
+    backgroundColor: '#E6F0FA',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  cardTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#3368A0'
+  },
+  cardSubtitle: {
+    fontSize: 14,
+    color: '#66A3BF',
+    marginTop: 2
+  },
+  label: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#334155',
+    marginTop: 18,
+    marginBottom: 6
+  },
+  pickerBox: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#94AFC5'
+  },
+  infoBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E6F0FA',
+    padding: 12,
+    borderRadius: 10,
+    marginTop: 10,
+  },
+  infoText: {
+    flex: 1,
+    color: '#24517E',
+    fontSize: 14,
+    lineHeight: 20
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 10
+  },
+  selectorBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#FFFFFF',
+    minHeight: 48,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#94AFC5',
+  },
+  selectorText: {
+    fontSize: 15,
+    color: '#1E293B'
+  },
+  inputArea: {
+    backgroundColor: '#FFFFFF',
+    color: '#1E293B',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#94AFC5',
+    padding: 12,
+    minHeight: 90,
+    textAlignVertical: 'top',
+    fontSize: 16,
+    marginBottom: 6,
+  },
+});
