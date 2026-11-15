@@ -36,7 +36,8 @@
           "color": "#3368A0"
         }
       ],
-      "expo-sharing"
+      "expo-sharing",
+      "expo-web-browser"
     ],
     "scheme": "serviciosmedicos"
   }

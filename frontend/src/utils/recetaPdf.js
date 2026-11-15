@@ -1,6 +1,7 @@
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
-import { fechaReceta, posologia } from './receta';
+import * as FileSystem from 'expo-file-system';
+import { fechaReceta } from './receta';
 
 const esc = value => String(value ?? '')
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -54,13 +55,27 @@ export async function descargarRecetaPdf(receta) {
   await Print.printAsync({ html: recetaHtml(receta) });
 }
 
-// "Compartir": genera el archivo PDF y abre el menú de compartir (WhatsApp, correo, Drive...).
+// "Compartir": mueve el archivo utilizando lectura directa de texto/base64 o caché documentada.
 export async function compartirRecetaPdf(receta) {
   const { uri } = await Print.printToFileAsync({ html: recetaHtml(receta) });
-  if (!(await Sharing.isAvailableAsync())) throw new Error('Este dispositivo no permite compartir archivos.');
-  await Sharing.shareAsync(uri, {
+
+  if (!(await Sharing.isAvailableAsync())) {
+    throw new Error('Este dispositivo no permite compartir archivos.');
+  }
+
+  // Creamos una ruta limpia en el documento temporal de la app
+  const fileName = `Receta_${receta.id_receta || Date.now()}.pdf`;
+  const newPath = FileSystem.documentDirectory + fileName;
+
+  // Movemos el archivo generado a documentDirectory (que Android sí permite leer y compartir)
+  await FileSystem.moveAsync({
+    from: uri,
+    to: newPath,
+  });
+
+  await Sharing.shareAsync(newPath, {
     mimeType: 'application/pdf',
-    UTI: 'com.adobe.pdf',
     dialogTitle: `Receta N.º ${receta.id_receta}`,
+    UTI: 'com.adobe.pdf',
   });
 }

@@ -59,9 +59,7 @@ export default function RecetaDetalleScreen() {
       <View style={styles.card}>
         <RecetaContenido receta={receta} mostrarPaciente={rol !== 'paciente'} />
       </View>
-      <Action disabled={generando} onPress={() => exportar(compartirRecetaPdf, receta)}>
-        {generando ? 'Generando PDF…' : 'Compartir con farmacia (PDF)'}
-      </Action>
+      
       <Action secondary disabled={generando} onPress={() => exportar(descargarRecetaPdf, receta)}>Descargar PDF</Action>
       {receta.id_cita ? <Action secondary onPress={() => router.push(`/citas/${receta.id_cita}`)}>Ver la cita</Action> : null}
       {puedeGestionar ? <>
