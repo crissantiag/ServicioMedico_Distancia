@@ -30,7 +30,13 @@
       "expo-asset",
       "expo-router",
       "@react-native-community/datetimepicker",
-      ["expo-notifications", { "color": "#3368A0" }]
+      [
+        "expo-notifications",
+        {
+          "color": "#3368A0"
+        }
+      ],
+      "expo-sharing"
     ],
     "scheme": "serviciosmedicos"
   }

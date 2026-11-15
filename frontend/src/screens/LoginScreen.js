@@ -15,37 +15,30 @@ const LoginScreen = () => {
 
   const [busy, setBusy] = useState(false);
   const handleLogin = async () => {
+    const email = username.trim();
+
     // 1. Validar campos vacíos
-    if (!email.trim() || !password) {
+    if (!email || !password) {
       Alert.alert('Campos incompletos', 'Por favor, ingresa tu correo electrónico y contraseña.');
       return;
     }
 
     // 2. Validar formato de correo electrónico
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email.trim())) {
+    if (!emailRegex.test(email)) {
       Alert.alert('Correo inválido', 'Por favor, introduce un formato de correo válido.');
       return;
     }
 
     try {
-      // 3. Autenticación con Firebase
-      await signInWithEmailAndPassword(auth, email.trim(), password);
-
-      // Si ya tenías una navegación o guardado en contexto/AsyncStorage aquí, déjalo igual:
-      // navigation.replace('Home'); (o la ruta que ya usas)
+      setBusy(true);
+      // 3. Firebase (REST) + perfil en Laravel. Al terminar, UserContext guarda el usuario
+      //    y expo-router entra solo a las pantallas protegidas (no hace falta navegar).
+      await signIn(email, password);
     } catch (error) {
-      let mensaje = 'No se pudo iniciar sesión. Intenta nuevamente.';
-      if (
-        error.code === 'auth/user-not-found' ||
-        error.code === 'auth/wrong-password' ||
-        error.code === 'auth/invalid-credential'
-      ) {
-        mensaje = 'El correo o la contraseña son incorrectos.';
-      } else if (error.code === 'auth/too-many-requests') {
-        mensaje = 'Demasiados intentos fallidos. Intenta más tarde.';
-      }
-      Alert.alert('Error de acceso', mensaje);
+      Alert.alert('Error de acceso', error.message || 'No se pudo iniciar sesión. Intenta nuevamente.');
+    } finally {
+      setBusy(false);
     }
   };
 

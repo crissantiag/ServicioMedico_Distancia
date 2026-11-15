@@ -24,6 +24,8 @@ function Routes() {
       <Stack.Screen name="ajustes" />
       <Stack.Screen name="mapa-centros" />
       <Stack.Screen name="historial" />
+      <Stack.Screen name="chat/index" />
+      <Stack.Screen name="chat/[id]" />
       <Stack.Screen name="citas/[id]" />
       <Stack.Screen name="citas/crear" />
       <Stack.Screen name="recetas/index" />

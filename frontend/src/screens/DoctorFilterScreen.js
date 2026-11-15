@@ -1,4 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { Alert } from 'react-native';
+import { UserContext } from '../context/UserContext';
+import { chat } from '../services/chat';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator, StatusBar, ScrollView, } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { api } from '../services/api';
@@ -8,6 +11,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 export default function DoctorFilterScreen() {
   const router = useRouter();
+  const { user } = useContext(UserContext);
   const params = useLocalSearchParams();
 
   // Inicializa idCentro si viene desde MapaCentrosScreen
@@ -86,6 +90,15 @@ export default function DoctorFilterScreen() {
     });
   };
 
+  const handleMensaje = async (item) => {
+    try {
+      const { data } = await chat.start(item.id_medico || item.id);
+      router.push({ pathname: '/chat/[id]', params: { id: String(data.id_conversacion), nombre: item.nombre_completo || 'Chat' } });
+    } catch (error) {
+      Alert.alert('Chat', error.message);
+    }
+  };
+
   const renderDoctorCard = ({ item }) => (
     <View style={styles.card}>
       <View style={styles.cardHeader}>
@@ -118,6 +131,13 @@ export default function DoctorFilterScreen() {
       >
         <Text style={styles.btnAgendarText}>Agendar Cita</Text>
       </TouchableOpacity>
+
+      {user?.rol !== 'medico' ? <TouchableOpacity
+        style={[styles.btnAgendar, { marginTop: 8, backgroundColor: '#E6F0FA' }]}
+        onPress={() => handleMensaje(item)}
+      >
+        <Text style={[styles.btnAgendarText, { color: '#24517E' }]}>Enviar mensaje</Text>
+      </TouchableOpacity> : null}
     </View>
   );
 

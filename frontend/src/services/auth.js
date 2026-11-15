@@ -1,4 +1,5 @@
 import { api } from './api';
+import { apiBase } from './config';
 import { clearSession, requestJson, sessionVersion, setSession } from './session';
 
 const messages = {
@@ -40,7 +41,7 @@ export async function login(email, password) {
 
 // Especialidades para el formulario de registro (ruta pública, aún no hay sesión).
 export async function registrationSpecialties() {
-  const base = process.env.EXPO_PUBLIC_API_URL?.replace(/\/$/, '');
+  const base = apiBase();
   if (!base) throw new Error('Configura EXPO_PUBLIC_API_URL en .env.local.');
   return (await requestJson(`${base}/registro/especialidades`, { headers: { Accept: 'application/json' } })).data;
 }

@@ -7,17 +7,30 @@ import { useResource } from '../hooks/useResource';
 import { useReloadOnFocus } from '../hooks/useReloadOnFocus';
 import { AccountPage, Action, Feedback, styles } from '../components/AccountUI';
 import { RecetaContenido } from '../components/RecetaContenido';
+import { compartirRecetaPdf, descargarRecetaPdf } from '../utils/recetaPdf';
 
 export default function RecetaDetalleScreen() {
   const { id } = useLocalSearchParams();
   const { user } = useContext(UserContext);
   const [borrando, setBorrando] = useState(false);
+  const [generando, setGenerando] = useState(false);
   const load = useCallback(() => account.prescription(id), [id]);
   const result = useResource(load);
   useReloadOnFocus(result.reload);
   const receta = result.data?.data;
   const rol = user?.rol;
   const puedeGestionar = rol === 'medico' || rol === 'administrador';
+
+  const exportar = async (accion, receta) => {
+    setGenerando(true);
+    try {
+      await accion(receta);
+    } catch (error) {
+      Alert.alert('No se pudo generar el PDF', error.message);
+    } finally {
+      setGenerando(false);
+    }
+  };
 
   const eliminar = () => Alert.alert(
     'Eliminar receta',
@@ -46,6 +59,10 @@ export default function RecetaDetalleScreen() {
       <View style={styles.card}>
         <RecetaContenido receta={receta} mostrarPaciente={rol !== 'paciente'} />
       </View>
+      <Action disabled={generando} onPress={() => exportar(compartirRecetaPdf, receta)}>
+        {generando ? 'Generando PDF…' : 'Compartir con farmacia (PDF)'}
+      </Action>
+      <Action secondary disabled={generando} onPress={() => exportar(descargarRecetaPdf, receta)}>Descargar PDF</Action>
       {receta.id_cita ? <Action secondary onPress={() => router.push(`/citas/${receta.id_cita}`)}>Ver la cita</Action> : null}
       {puedeGestionar ? <>
         <Action disabled={borrando} onPress={() => router.push(`/recetas/editar?id=${receta.id_receta}`)}>Editar receta</Action>

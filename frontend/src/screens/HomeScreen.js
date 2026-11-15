@@ -70,6 +70,17 @@ const HomeScreen = () => {
                 </View>
             </TouchableOpacity>
 
+            {/* Tarjeta Chat */}
+            <TouchableOpacity style={styles.card} onPress={() => router.push('/chat')}>
+                <View style={styles.iconContainer}>
+                    <MaterialCommunityIcons name="chat-processing-outline" size={36} color="#3368A0" />
+                </View>
+                <View style={styles.textContainer}>
+                    <Text style={styles.cardTitle}>Chat</Text>
+                    <Text style={styles.cardSubtitle}>Chat en tiempo real con médicos y especialistas</Text>
+                </View>
+            </TouchableOpacity>
+
             {/* Tarjeta Recetas */}
             <TouchableOpacity style={styles.card} onPress={() => router.push('/recetas')}>
                 <View style={styles.iconContainer}>

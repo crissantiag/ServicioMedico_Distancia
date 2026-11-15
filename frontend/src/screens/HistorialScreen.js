@@ -12,7 +12,7 @@ export default function HistorialScreen() {
   const list = useRef(null);
   const [state, setState] = useState('');
   const [page, setPage] = useState(1);
-  const load = useCallback(() => account.appointments(user?.id_usuario, { state, page }), [user?.id_usuario, state, page]);
+  const load = useCallback(() => account.appointments(user?.id_usuario, { state, page, role: user?.rol === 'medico' ? 'medico' : 'paciente' }), [user?.id_usuario, user?.rol, state, page]);
   const history = useResource(load);
   const states = useResource(account.states);
   const meta = history.data?.meta;
